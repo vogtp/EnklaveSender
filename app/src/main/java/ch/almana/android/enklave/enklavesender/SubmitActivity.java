@@ -54,6 +54,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        isDebugMode = Debug.isUnsinedPackage(this);
         setContentView(R.layout.activity_submit);
         setTitle(getString(R.string.submitActivityTitle));
 
@@ -62,9 +63,6 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
         tvLongitude = (TextView) findViewById(R.id.tvLongitude);
         imageView = (ImageView) findViewById(R.id.imageView);
         buSend = (Button) findViewById(R.id.buSend);
-
-        isDebugMode = Debug.isUnsinedPackage(this);
-        showDebugInfo();
 
         buSend.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -138,74 +136,25 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
     @Override
     protected void onResume() {
         super.onResume();
-//        Handler h = new Handler();
-//        h.post(new Runnable() {
-//                   @Override
-//                   public void run() {
+        showDebugInfo();
+        Handler h = new Handler();
+        h.post(new Runnable() {
+            @Override
+            public void run() {
 
-        if (!isLoggedIn()) {
-            Toast.makeText(SubmitActivity.this, getString(R.string.msg_login_todo), Toast.LENGTH_LONG).show();
-            startWebsite();
-        }
-//                   }
-//               });
+                if (!WebsiteActivity.isLoggedIn()) {
+                    Toast.makeText(SubmitActivity.this, getString(R.string.msg_login_todo), Toast.LENGTH_LONG).show();
+                    final Intent intent = new Intent(SubmitActivity.this, WebsiteActivity.class);
+                    intent.putExtra(WebsiteActivity.EXTRA_LOGIN, true);
+                    startActivity(intent);
+                }
+            }
+        });
 
         setUpMapIfNeeded();
     }
 
-    private void startWebsite() {
-        startActivity(new Intent(this, WebsiteActivity.class));
-    }
 
-    private boolean isLoggedIn() {
-        BufferedReader reader = null;
-        HttpURLConnection conn = null;
-        try {
-
-            //FIXME hack
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-            URL url = new URL(WebsiteActivity.URL);
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setDoInput(true);
-            conn.setDoOutput(true);
-            conn.setUseCaches(false);
-            reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            String line = reader.readLine();
-
-            while (line != null) {
-                Logger.i("Line: " + line);
-                if (line.contains("location_add#locationform")) {
-                    return true;
-                }
-                if (line.contains("Maximum file size: 8Mb")) {
-                    return true;
-                }
-                if (line.contains("Logout")) {
-                    return true;
-                }
-                if (line.contains("Login")) {
-                    return false;
-                }
-                line = reader.readLine();
-            }
-        } catch (Exception e) {
-            Logger.e("Cannot check if login");
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    // e.printStackTrace();
-                }
-            }
-            if (conn != null) {
-                conn.disconnect();
-            }
-
-        }
-        return false;
-    }
 
 
     @Override
@@ -233,7 +182,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_website) {
-            startWebsite();
+            startActivity(new Intent(this, WebsiteActivity.class));
             return true;
         } else if (id == R.id.action_debug) {
             isDebugMode = !item.isChecked();
