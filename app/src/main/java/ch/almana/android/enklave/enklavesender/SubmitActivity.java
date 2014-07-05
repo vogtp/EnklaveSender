@@ -16,6 +16,7 @@ import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -54,6 +55,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         isDebugMode = Debug.isUnsinedPackage(this);
         setContentView(R.layout.activity_submit);
         setTitle(getString(R.string.submitActivityTitle));
@@ -74,6 +76,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
                     return;
                 }
                 buSend.setEnabled(false);
+                setProgressBarIndeterminateVisibility(true);
 
                 if (isDebugMode) {
                     name = name + "_BANANA_from_tille";
@@ -106,6 +109,8 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
                         } catch (Exception e) {
                             Logger.e("Error posting enklave", e);
                             Toast.makeText(SubmitActivity.this, "Error posting enklave: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                        }finally {
+                            setProgressBarIndeterminateVisibility(false);
                         }
 
                     }
