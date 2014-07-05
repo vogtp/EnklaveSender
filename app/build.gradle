@@ -1,0 +1,43 @@
+import com.android.builder.core.DefaultManifestParser
+
+apply plugin: 'android'
+
+android {
+    signingConfigs {
+        releaseKey {
+            storeFile file('/home/vogtp/android/keystoreEnklave')
+            storePassword 'ks4enklave'
+            keyAlias 'enklavesender'
+            keyPassword 'key4enklaveSender'
+        }
+    }
+    compileSdkVersion 19
+    buildToolsVersion '19.1.0'
+    defaultConfig {
+        applicationId 'ch.almana.android.enklave.enklavesender'
+        minSdkVersion 10
+        targetSdkVersion 19
+        versionCode 201407040
+        versionName '0.1.0'
+    }
+    buildTypes {
+        release {
+            runProguard false
+            signingConfig signingConfigs.releaseKey
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            def manifestParser = new DefaultManifestParser()
+            applicationVariants.all { variant ->
+                def file = variant.outputFile
+                variant.outputFile = new File(file.parent, file.name.replace(".apk", "-" + manifestParser.getVersionName(android.sourceSets.main.manifest.srcFile) + ".apk"))
+            }
+        }
+    }
+    productFlavors {
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.support:appcompat-v7:19.+'
+    compile 'com.google.android.gms:play-services:4.2.42'
+}
