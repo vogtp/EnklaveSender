@@ -3,7 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/EnklaveSender.iml" filepath="$PROJECT_DIR$/EnklaveSender.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/enklaveSender/enklaveSender.iml" filepath="$PROJECT_DIR$/enklaveSender/enklaveSender.iml" />
     </modules>
   </component>
 </project>

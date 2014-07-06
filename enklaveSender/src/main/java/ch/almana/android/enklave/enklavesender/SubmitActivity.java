@@ -1,11 +1,13 @@
 package ch.almana.android.enklave.enklavesender;
 
 import android.annotation.TargetApi;
+import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
@@ -29,10 +31,6 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.URL;
 
 import ch.almana.android.enklave.enklavesender.connection.EnklaveSubmit;
@@ -109,7 +107,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
                         } catch (Exception e) {
                             Logger.e("Error posting enklave", e);
                             Toast.makeText(SubmitActivity.this, "Error posting enklave: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                        }finally {
+                        } finally {
                             setProgressBarIndeterminateVisibility(false);
                         }
 
@@ -129,11 +127,16 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private void showDebugInfo() {
+        final ActionBar actionBar = getActionBar();
         if (isDebugMode) {
-            getActionBar().setSubtitle("********* Debug *********");
+            if (actionBar != null) {
+                actionBar.setSubtitle("********* Debug *********");
+            }
             buSend.setText("Send Test Data");
         } else {
-            getActionBar().setSubtitle(null);
+            if (actionBar != null) {
+                actionBar.setSubtitle(null);
+            }
             buSend.setText(R.string.send);
         }
     }
@@ -141,6 +144,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
     @Override
     protected void onResume() {
         super.onResume();
+        buSend.setEnabled(false);
         showDebugInfo();
         Handler h = new Handler();
         h.post(new Runnable() {
@@ -158,8 +162,6 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
 
         setUpMapIfNeeded();
     }
-
-
 
 
     @Override
@@ -239,13 +241,39 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
         mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         Criteria criteria = new Criteria();
+        final String bestProvider = locationManager.getBestProvider(criteria, false);
 
-        Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+        locationManager.requestSingleUpdate(bestProvider, new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                if (location != null) {
+                    final LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
+                    updateMarker(latLng);
+                }
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+
+            }
+        }, getMainLooper());
+
+        Location location = locationManager.getLastKnownLocation(bestProvider);
         if (location != null) {
             final LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
             updateMarker(latLng);
-
         }
     }
 
@@ -261,6 +289,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
         tvLongitude.setText(latLng.longitude + "");
         marker.position(latLng);
         mMap.addMarker(marker);
+        buSend.setEnabled(true);
     }
 
     @Override
