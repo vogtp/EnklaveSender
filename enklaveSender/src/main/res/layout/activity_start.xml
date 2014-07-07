@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:fontFamily="bold"
         android:layout_height="match_parent"
-        android:drawableBottom="@drawable/ic_launcher3"
+        android:drawableBottom="@drawable/enklave_sender_logo"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:id="@+id/textView2" />
 
