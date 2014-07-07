@@ -49,6 +49,8 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
     private Button buSend;
     private EditText etName;
     private boolean isDebugMode;
+    private LocationManager locationManager;
+    private LocationListener locationListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +60,32 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
         setContentView(R.layout.activity_submit);
         setTitle(getString(R.string.submitActivityTitle));
 
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                if (location != null) {
+                    final LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
+                    updateMarker(latLng);
+                }
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+
+            }
+        };
         etName = (EditText) findViewById(R.id.etName);
         tvLatitude = (TextView) findViewById(R.id.tvLatitude);
         tvLongitude = (TextView) findViewById(R.id.tvLongitude);
@@ -161,8 +189,16 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
         });
 
         setUpMapIfNeeded();
+        updateLocation();
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (locationManager != null && locationListener != null ){
+            locationManager.removeUpdates(locationListener);
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -239,41 +275,25 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
         mMap.setOnMapClickListener(this);
         mMap.setOnMapLongClickListener(this);
         mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        Criteria criteria = new Criteria();
-        final String bestProvider = locationManager.getBestProvider(criteria, false);
 
-        locationManager.requestSingleUpdate(bestProvider, new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                if (location != null) {
-                    final LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
-                    updateMarker(latLng);
-                }
-            }
+//        if (marker != null){
+//            mMap.addMarker(marker);
+//        }
+    }
 
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
+    private void updateLocation() {
+//        Criteria criteria = new Criteria();
+//        criteria.setCostAllowed(false);
+//        final String bestProvider = locationManager.getBestProvider(criteria, false);
 
-            }
 
-            @Override
-            public void onProviderEnabled(String provider) {
-
-            }
-
-            @Override
-            public void onProviderDisabled(String provider) {
-
-            }
-        }, getMainLooper());
-
-        Location location = locationManager.getLastKnownLocation(bestProvider);
-        if (location != null) {
+        Location location = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+        if (location == null) {
+            locationManager.requestSingleUpdate(LocationManager.PASSIVE_PROVIDER, locationListener, getMainLooper());
+        }else{
             final LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
-            updateMarker(latLng);
+//            updateMarker(latLng);
         }
     }
 
@@ -288,7 +308,9 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
         tvLatitude.setText(latLng.latitude + "");
         tvLongitude.setText(latLng.longitude + "");
         marker.position(latLng);
-        mMap.addMarker(marker);
+        if (mMap != null){
+            mMap.addMarker(marker);
+        }
         buSend.setEnabled(true);
     }
 
