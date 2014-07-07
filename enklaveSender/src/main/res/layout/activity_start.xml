@@ -11,7 +11,9 @@
     <TextView
         android:text="@string/not_the_way_it_works"
         android:layout_width="match_parent"
+        android:fontFamily="bold"
         android:layout_height="match_parent"
+        android:drawableBottom="@drawable/ic_launcher3"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:id="@+id/textView2" />
 
