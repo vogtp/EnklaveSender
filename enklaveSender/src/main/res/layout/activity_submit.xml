@@ -35,7 +35,7 @@
 </LinearLayout>
     <ImageView
         android:layout_width="match_parent"
-        android:layout_height="200dp" android:src="@drawable/dummy_enklave"
+        android:layout_height="200dp" android:src="@android:drawable/ic_menu_camera"
         android:id="@+id/imageView"
         android:layout_gravity="center_horizontal"
         android:layout_weight="1" />

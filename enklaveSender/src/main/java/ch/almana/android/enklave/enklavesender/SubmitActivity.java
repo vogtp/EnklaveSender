@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.location.LocationListener;
@@ -13,6 +14,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.StrictMode;
+import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -39,6 +41,7 @@ import ch.almana.android.enklave.enklavesender.utils.Logger;
 
 public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapLongClickListener, GoogleMap.OnMapClickListener {
 
+    private static final int REQUEST_CODE_TAKE_PICTURE = 1;
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private ImageView imageView;
     private MarkerOptions marker;
@@ -149,6 +152,21 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
             Logger.i("Got image from intent: " + photo);
             imageView.setImageURI(photo);
             //         ().setImageBitmap(BitmapFactory.decodeStream(photo));
+        } else {
+            imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    startActivityForResult(cameraIntent, REQUEST_CODE_TAKE_PICTURE);
+                }
+            });
+        }
+
+    }
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_CODE_TAKE_PICTURE && resultCode == RESULT_OK) {
+            Bitmap photo = (Bitmap) data.getExtras().get("data");
+            imageView.setImageBitmap(photo);
         }
     }
 
