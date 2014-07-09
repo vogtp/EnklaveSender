@@ -11,17 +11,16 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by vogtp on 7/4/14.
  */
-public class UrlConnectionEnklaveSubmit extends BaseEnklaveSubmit implements EnklaveSubmit {
+public abstract class BaseEnklaveConnection {
+
     private final URL url;
     private final HttpURLConnection conn;
     private final List<NameValuePair> params;
@@ -30,9 +29,9 @@ public class UrlConnectionEnklaveSubmit extends BaseEnklaveSubmit implements Enk
     String crlf = "\r\n";
     String twoHyphens = "--";
     String boundary = "*****";
-    private Bitmap image;
+    protected Bitmap image;
 
-    public UrlConnectionEnklaveSubmit(String urlString) throws IOException {
+    public BaseEnklaveConnection(String urlString) throws IOException {
         url = new URL(urlString);
         conn = (HttpURLConnection) url.openConnection();
         conn.setReadTimeout(20000);
@@ -47,12 +46,10 @@ public class UrlConnectionEnklaveSubmit extends BaseEnklaveSubmit implements Enk
         params = new ArrayList<NameValuePair>();
     }
 
-    @Override
     protected void addParam(String key, String value) {
         params.add(new BasicNameValuePair(key, value));
     }
 
-    @Override
     public void doPost() throws IOException {
 
         OutputStream os = conn.getOutputStream();
@@ -60,7 +57,9 @@ public class UrlConnectionEnklaveSubmit extends BaseEnklaveSubmit implements Enk
         request.writeBytes(this.twoHyphens + this.boundary + this.crlf);
         addFields(request, params);
 
-        addImage(request);
+        if (image != null) {
+            addImage(request);
+        }
         request.flush();
         request.close();
         os.flush();
@@ -78,7 +77,6 @@ public class UrlConnectionEnklaveSubmit extends BaseEnklaveSubmit implements Enk
         request.writeBytes(this.twoHyphens + this.boundary + this.twoHyphens + this.crlf);
     }
 
-    @Override
     public String getResponse() throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
         String line = reader.readLine();
@@ -91,12 +89,6 @@ public class UrlConnectionEnklaveSubmit extends BaseEnklaveSubmit implements Enk
         return response;
     }
 
-    @Override
-    public void setEnklaveImage(Bitmap bitmap) {
-        image = bitmap;
-    }
-
-    @Override
     public void finish() {
         conn.disconnect();
     }
@@ -111,6 +103,4 @@ public class UrlConnectionEnklaveSubmit extends BaseEnklaveSubmit implements Enk
             dos.writeBytes(twoHyphens + boundary + crlf);
         }
     }
-
-
 }

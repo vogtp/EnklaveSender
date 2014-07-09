@@ -5,7 +5,6 @@ import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
-import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -34,7 +33,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.net.URL;
 
 import ch.almana.android.enklave.enklavesender.connection.EnklaveSubmit;
-import ch.almana.android.enklave.enklavesender.connection.UrlConnectionEnklaveSubmit;
+import ch.almana.android.enklave.enklavesender.connection.EnklaveSubmitConnection;
 import ch.almana.android.enklave.enklavesender.utils.Debug;
 import ch.almana.android.enklave.enklavesender.utils.Logger;
 
@@ -119,7 +118,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
                             //FIXME hack
                             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
                             StrictMode.setThreadPolicy(policy);
-                            EnklaveSubmit es = new UrlConnectionEnklaveSubmit("http://www.enklave-mobile.com/location_add#locationform");
+                            EnklaveSubmit es = new EnklaveSubmitConnection();
 
                             es.setEnklaveName(finalName);
 
@@ -195,7 +194,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
     @Override
     protected void onPause() {
         super.onPause();
-        if (locationManager != null && locationListener != null ){
+        if (locationManager != null && locationListener != null) {
             locationManager.removeUpdates(locationListener);
         }
     }
@@ -290,7 +289,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
         Location location = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
         if (location == null) {
             locationManager.requestSingleUpdate(LocationManager.PASSIVE_PROVIDER, locationListener, getMainLooper());
-        }else{
+        } else {
             final LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
 //            updateMarker(latLng);
@@ -308,7 +307,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
         tvLatitude.setText(latLng.latitude + "");
         tvLongitude.setText(latLng.longitude + "");
         marker.position(latLng);
-        if (mMap != null){
+        if (mMap != null) {
             mMap.addMarker(marker);
         }
         buSend.setEnabled(true);
