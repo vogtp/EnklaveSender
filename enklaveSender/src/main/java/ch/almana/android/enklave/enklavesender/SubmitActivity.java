@@ -13,7 +13,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
@@ -47,12 +46,13 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
     private MarkerOptions marker;
     private TextView tvLatitude;
     private TextView tvLongitude;
-    private LatLng enklaveLatLng;
+    private LatLng enklaveLatLng = null;
     private Button buSend;
     private EditText etName;
     private boolean isDebugMode;
     private LocationManager locationManager;
     private LocationListener locationListener;
+    private boolean hasImage = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,9 +118,8 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
                     public void run() {
                         try {
 
-                            //FIXME hack
-                            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-                            StrictMode.setThreadPolicy(policy);
+//                            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+//                            StrictMode.setThreadPolicy(policy);
                             EnklaveSubmit es = new EnklaveSubmitConnection();
 
                             es.setEnklaveName(finalName);
@@ -151,7 +150,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
             Uri photo = (Uri) getIntent().getParcelableExtra(Intent.EXTRA_STREAM);
             Logger.i("Got image from intent: " + photo);
             imageView.setImageURI(photo);
-            //         ().setImageBitmap(BitmapFactory.decodeStream(photo));
+            hasImage = true;
         } else {
             imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -163,10 +162,17 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
         }
 
     }
+
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE_TAKE_PICTURE && resultCode == RESULT_OK) {
             Bitmap photo = (Bitmap) data.getExtras().get("data");
-            imageView.setImageBitmap(photo);
+            if (photo != null) {
+                imageView.setImageBitmap(photo);
+                hasImage = true;
+            } else {
+                hasImage = false;
+            }
+            enableSendButton();
         }
     }
 
@@ -189,7 +195,6 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
     @Override
     protected void onResume() {
         super.onResume();
-        buSend.setEnabled(false);
         showDebugInfo();
         Handler h = new Handler();
         h.post(new Runnable() {
@@ -204,9 +209,9 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
                 }
             }
         });
-
         setUpMapIfNeeded();
         updateLocation();
+        enableSendButton();
     }
 
     @Override
@@ -328,7 +333,11 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
         if (mMap != null) {
             mMap.addMarker(marker);
         }
-        buSend.setEnabled(true);
+        enableSendButton();
+    }
+
+    private void enableSendButton() {
+        buSend.setEnabled(enklaveLatLng != null && hasImage);
     }
 
     @Override
