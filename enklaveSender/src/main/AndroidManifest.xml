@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="ch.almana.android.enklave.enklavesender"
-    android:versionCode="201407110"
-    android:versionName="0.5.0" >
+    android:versionCode="201407111"
+    android:versionName="0.5.0">
 
     <application
         android:name=".utils.ESApplication"
         android:allowBackup="true"
         android:icon="@drawable/enklave_sender_logo"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
         <activity
             android:name=".SubmitActivity"
-            android:label="@string/title_activity_maps" >
+            android:label="@string/title_activity_maps">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -36,8 +36,7 @@
 
         <activity
             android:name=".WebsiteActivity"
-            android:label="@string/title_activity_website" >
-        </activity>
+            android:label="@string/title_activity_website" />
     </application>
 
     <uses-permission android:name="android.permission.INTERNET" />
