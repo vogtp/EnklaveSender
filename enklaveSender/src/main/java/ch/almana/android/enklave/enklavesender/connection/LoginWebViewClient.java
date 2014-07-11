@@ -8,6 +8,7 @@ import ch.almana.android.enklave.enklavesender.WebsiteActivity;
 
 /**
  * Created by vogtp on 7/5/14.
+ *
  */
 public class LoginWebViewClient extends android.webkit.WebViewClient {
 
@@ -26,6 +27,11 @@ public class LoginWebViewClient extends android.webkit.WebViewClient {
     public void onPageFinished(WebView view, String url) {
         super.onPageFinished(view, url);
 
+        // in case we are redirected, we are signed in
+//        if (WebsiteActivity.URL.equals(url)){
+//            Logger.i("We were redirected to the website ("+url+"), this means we are signed in");
+//            act.finish();
+//        }else{
         Handler h = new Handler();
         h.post(new Runnable() {
             @Override
@@ -38,5 +44,6 @@ public class LoginWebViewClient extends android.webkit.WebViewClient {
                 }
             }
         });
+//        }
     }
 }

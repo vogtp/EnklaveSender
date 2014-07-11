@@ -31,8 +31,6 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.net.URL;
-
 import ch.almana.android.enklave.enklavesender.connection.EnklaveSubmit;
 import ch.almana.android.enklave.enklavesender.connection.EnklaveSubmitConnection;
 import ch.almana.android.enklave.enklavesender.utils.Debug;
@@ -97,7 +95,6 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
         buSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                URL url = null;
                 String name = etName.getText().toString();
                 if (name == null || name.trim().length() < 1) {
                     Toast.makeText(SubmitActivity.this, R.string.enter_name, Toast.LENGTH_LONG).show();
@@ -130,9 +127,12 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
                             es.doPost();
                             String response = es.getResponse();
                             es.finish();
-                            Intent i = new Intent(SubmitActivity.this, WebsiteActivity.class);
-                            i.putExtra(WebsiteActivity.EXTRA_HTML, response);
-                            startActivity(i);
+                            if (isDebugMode) {
+                                Intent i = new Intent(SubmitActivity.this, WebsiteActivity.class);
+                                i.putExtra(WebsiteActivity.EXTRA_HTML, response);
+                                startActivity(i);
+                            }
+                            Toast.makeText(getApplicationContext(), "Your Enklave has been submitted, please check your e-mail!", Toast.LENGTH_LONG).show();
                         } catch (Exception e) {
                             Logger.e("Error posting enklave", e);
                             Toast.makeText(SubmitActivity.this, "Error posting enklave: " + e.getMessage(), Toast.LENGTH_LONG).show();
@@ -147,7 +147,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
         setUpMapIfNeeded();
 
         if (getIntent().hasExtra(Intent.EXTRA_STREAM)) {
-            Uri photo = (Uri) getIntent().getParcelableExtra(Intent.EXTRA_STREAM);
+            Uri photo = getIntent().getParcelableExtra(Intent.EXTRA_STREAM);
             Logger.i("Got image from intent: " + photo);
             imageView.setImageURI(photo);
             hasImage = true;
@@ -202,7 +202,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
             public void run() {
 
                 if (!WebsiteActivity.isLoggedIn()) {
-                    Toast.makeText(SubmitActivity.this, getString(R.string.msg_login_todo), Toast.LENGTH_LONG).show();
+                    //  Toast.makeText(SubmitActivity.this, getString(R.string.msg_login_todo), Toast.LENGTH_LONG).show();
                     final Intent intent = new Intent(SubmitActivity.this, WebsiteActivity.class);
                     intent.putExtra(WebsiteActivity.EXTRA_LOGIN, true);
                     startActivity(intent);
@@ -224,19 +224,20 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.website, menu);
-        //   if (Debug.isUnsinedPackage(this)){
-        getMenuInflater().inflate(R.menu.debug, menu);
-        menu.findItem(R.id.action_debug).setChecked(isDebugMode);
-        //  }
+        if (Logger.DEBUG) {
+            getMenuInflater().inflate(R.menu.debug, menu);
+            menu.findItem(R.id.action_debug).setChecked(isDebugMode);
+        }
 
         return true;
     }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        menu.findItem(R.id.action_debug).setChecked(isDebugMode);
+        if (Logger.DEBUG){
+            menu.findItem(R.id.action_debug).setChecked(isDebugMode);
+        }
         return super.onPrepareOptionsMenu(menu);
     }
 

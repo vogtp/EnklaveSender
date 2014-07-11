@@ -25,6 +25,7 @@ public class WebsiteActivity extends ActionBarActivity {
     public static final String EXTRA_HTML = "EXTRA_HTML";
     public static final String EXTRA_LOGIN = "EXTRA_LOGIN";
     public static final String URL = "http://www.enklave-mobile.com/";
+    public static final String URL_LOGIN = "http://www.enklave-mobile.com/login";
     private WebView webView;
     private WebViewClient webViewClient;
     private boolean isLogin;
@@ -69,7 +70,12 @@ public class WebsiteActivity extends ActionBarActivity {
                 }
             });
         } else {
-            webView.loadUrl(URL);
+            if (isLogin) {
+                setTitle(getString(R.string.title_enklave_login));
+                webView.loadUrl(URL_LOGIN);
+            } else {
+                webView.loadUrl(URL);
+            }
         }
     }
 
@@ -98,32 +104,44 @@ public class WebsiteActivity extends ActionBarActivity {
         BufferedReader reader = null;
         HttpURLConnection conn = null;
         try {
-
-            //FIXME hack
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
-            java.net.URL url = new URL(WebsiteActivity.URL);
+            java.net.URL url = new URL(WebsiteActivity.URL_LOGIN);
             conn = (HttpURLConnection) url.openConnection();
             conn.setDoInput(true);
             conn.setDoOutput(true);
             conn.setUseCaches(false);
+            Logger.i("Resp URL: >" + conn.getURL() + "<");
+//            if (WebsiteActivity.URL.equals(conn.getURL().toString())){
+//                Logger.i("Authenticated with enklave wensite");
+//                return true;
+//            }
+//             else{
+//                Logger.i("Not authenticated with enklave wensite");
+//                return false;
+//            }
             reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             String line = reader.readLine();
-
             while (line != null) {
                 Logger.i("Line: " + line);
-                if (line.contains("location_add#locationform")) {
-                    return true;
-                }
-                if (line.contains("Maximum file size: 8Mb")) {
-                    return true;
-                }
-                if (line.contains("Logout")) {
-                    return true;
-                }
-                if (line.contains("Login")) {
+                if (line.contains("LOGIN")) {
                     return false;
                 }
+                if (line.contains("You are logged in.")) {
+                    return true;
+                }
+//                if (line.contains("location_add#locationform")) {
+//                    return true;
+//                }
+//                if (line.contains("Maximum file size: 8Mb")) {
+//                    return true;
+//                }
+//                if (line.contains("Logout")) {
+//                    return true;
+//                }
+//                if (line.contains("Login")) {
+//                    return false;
+//                }
                 line = reader.readLine();
             }
         } catch (Exception e) {
