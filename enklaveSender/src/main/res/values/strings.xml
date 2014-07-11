@@ -2,18 +2,15 @@
 <resources>
 
     <string name="app_name">Enklave Sender</string>
-    <string name="title_activity_maps">Enklave monkey</string>
+    <string name="title_activity_maps">Enklave Council</string>
     <string name="title_activity_website">Enklave Website</string>
-    <string name="not_the_way_it_works">Hello Guardian! \n\nThis is not the way it works (right now).\n\n  - Choose an image\n  - Hit the share button\n  - Choose "Enklave Monkey" from the list\n\n\nHave fun feeding the monkey...</string>
-    <string name="action_settings">Settings</string>
     <string name="longitude">Longitude</string>
     <string name="latitude">Latitude</string>
     <string name="enklaveName">Enklave Name</string>
     <string name="send">Send</string>
     <string name="enter_name">Please enter a name for the Enklave</string>
-    <string name="submitActivityTitle">Feed the Enklave monkeys</string>
-    <string name="msg_login_todo">Please login and close the website again to use this app</string>
+    <string name="submitActivityTitle">Propose Enklave to Council</string>
     <string name="action_website">Website</string>
-    <string name="title_activity_start">No bananas found!</string>
+    <string name="title_enklave_login">Eklave Login</string>
 
 </resources>
