@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="ch.almana.android.enklave.enklavesender"
     android:versionCode="201407110"
-    android:versionName="0.4.1" >
+    android:versionName="0.5.0" >
 
     <application
         android:name=".utils.ESApplication"
@@ -37,15 +37,6 @@
         <activity
             android:name=".WebsiteActivity"
             android:label="@string/title_activity_website" >
-        </activity>
-        <activity
-            android:name=".StartActivity"
-            android:label="@string/app_name" >
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.MAIN" />-->
-
-                <!--<category android:name="android.intent.category.LAUNCHER" />-->
-            <!--</intent-filter>-->
         </activity>
     </application>
 
