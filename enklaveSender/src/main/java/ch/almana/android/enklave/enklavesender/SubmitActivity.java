@@ -10,6 +10,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -56,6 +57,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
     private boolean hasImage = false;
     private Uri photoUri;
     private Bitmap photoBitmap;
+    private CheckLogin checkLogin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -165,13 +167,13 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
                 }
             });
         }
-        if (savedInstanceState != null){
+        if (savedInstanceState != null) {
             photoBitmap = savedInstanceState.getParcelable(EXTRA_IMAGE);
-            if (photoBitmap != null){
+            if (photoBitmap != null) {
                 imageView.setImageBitmap(photoBitmap);
             }
             enklaveLatLng = savedInstanceState.getParcelable(EXTRA_LATLON);
-            if (enklaveLatLng != null){
+            if (enklaveLatLng != null) {
                 updateMarker(enklaveLatLng);
             }
             etName.setText(savedInstanceState.getString(EXTRA_NAME));
@@ -216,23 +218,43 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
         }
     }
 
+    private class CheckLogin extends AsyncTask<Object, Object, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(Object[] params) {
+            return WebsiteActivity.isLoggedIn();
+        }
+
+        @Override
+        protected void onPostExecute(Boolean loggedin) {
+            if (!loggedin) {
+                //  Toast.makeText(SubmitActivity.this, getString(R.string.msg_login_todo), Toast.LENGTH_LONG).show();
+                final Intent intent = new Intent(SubmitActivity.this, WebsiteActivity.class);
+                intent.putExtra(WebsiteActivity.EXTRA_LOGIN, true);
+                startActivity(intent);
+            }
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
         showDebugInfo();
-        Handler h = new Handler();
-        h.post(new Runnable() {
-            @Override
-            public void run() {
-
-                if (!WebsiteActivity.isLoggedIn()) {
-                    //  Toast.makeText(SubmitActivity.this, getString(R.string.msg_login_todo), Toast.LENGTH_LONG).show();
-                    final Intent intent = new Intent(SubmitActivity.this, WebsiteActivity.class);
-                    intent.putExtra(WebsiteActivity.EXTRA_LOGIN, true);
-                    startActivity(intent);
-                }
-            }
-        });
+        checkLogin = new CheckLogin();
+        checkLogin.execute();
+//        Handler h = new Handler();
+//        h.post(new Runnable() {
+//            @Override
+//            public void run() {
+//
+//                if (!WebsiteActivity.isLoggedIn()) {
+//                    //  Toast.makeText(SubmitActivity.this, getString(R.string.msg_login_todo), Toast.LENGTH_LONG).show();
+//                    final Intent intent = new Intent(SubmitActivity.this, WebsiteActivity.class);
+//                    intent.putExtra(WebsiteActivity.EXTRA_LOGIN, true);
+//                    startActivity(intent);
+//                }
+//            }
+//        });
         setUpMapIfNeeded();
         updateLocation();
         enableSendButton();
@@ -241,6 +263,9 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
     @Override
     protected void onPause() {
         super.onPause();
+        if (checkLogin != null) {
+            checkLogin.cancel(true);
+        }
         if (locationManager != null && locationListener != null) {
             locationManager.removeUpdates(locationListener);
         }
@@ -259,7 +284,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        if (Logger.DEBUG){
+        if (Logger.DEBUG) {
             menu.findItem(R.id.action_debug).setChecked(isDebugMode);
         }
         return super.onPrepareOptionsMenu(menu);
