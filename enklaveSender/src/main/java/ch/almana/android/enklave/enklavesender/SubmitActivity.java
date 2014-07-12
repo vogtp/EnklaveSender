@@ -39,6 +39,9 @@ import ch.almana.android.enklave.enklavesender.utils.Logger;
 public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapLongClickListener, GoogleMap.OnMapClickListener {
 
     private static final int REQUEST_CODE_TAKE_PICTURE = 1;
+    private static final String EXTRA_IMAGE = "EXTRA_IMAGE";
+    private static final String EXTRA_NAME = "EXTRA_NAME";
+    private static final String EXTRA_LATLON = "EXTRA_LATLON";
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private ImageView imageView;
     private MarkerOptions marker;
@@ -51,6 +54,8 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
     private LocationManager locationManager;
     private LocationListener locationListener;
     private boolean hasImage = false;
+    private Uri photoUri;
+    private Bitmap photoBitmap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -147,9 +152,9 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
         setUpMapIfNeeded();
 
         if (getIntent().hasExtra(Intent.EXTRA_STREAM)) {
-            Uri photo = getIntent().getParcelableExtra(Intent.EXTRA_STREAM);
-            Logger.i("Got image from intent: " + photo);
-            imageView.setImageURI(photo);
+            photoUri = getIntent().getParcelableExtra(Intent.EXTRA_STREAM);
+            Logger.i("Got image from intent: " + photoUri);
+            imageView.setImageURI(photoUri);
             hasImage = true;
         } else {
             imageView.setOnClickListener(new View.OnClickListener() {
@@ -160,14 +165,33 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
                 }
             });
         }
+        if (savedInstanceState != null){
+            photoBitmap = savedInstanceState.getParcelable(EXTRA_IMAGE);
+            if (photoBitmap != null){
+                imageView.setImageBitmap(photoBitmap);
+            }
+            enklaveLatLng = savedInstanceState.getParcelable(EXTRA_LATLON);
+            if (enklaveLatLng != null){
+                updateMarker(enklaveLatLng);
+            }
+            etName.setText(savedInstanceState.getString(EXTRA_NAME));
+        }
+    }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(EXTRA_IMAGE, ((BitmapDrawable) imageView.getDrawable()).getBitmap());
+        outState.putString(EXTRA_NAME, etName.getText().toString());
+        outState.putParcelable(EXTRA_LATLON, enklaveLatLng);
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE_TAKE_PICTURE && resultCode == RESULT_OK) {
-            Bitmap photo = (Bitmap) data.getExtras().get("data");
-            if (photo != null) {
-                imageView.setImageBitmap(photo);
+            photoBitmap = (Bitmap) data.getExtras().get("data");
+            if (photoBitmap != null) {
+                imageView.setImageBitmap(photoBitmap);
+                photoUri = null;
                 hasImage = true;
             } else {
                 hasImage = false;
@@ -350,4 +374,5 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
     public void onMapClick(LatLng latLng) {
         updateMarker(latLng);
     }
+
 }
