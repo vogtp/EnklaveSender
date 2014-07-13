@@ -84,6 +84,9 @@ public class EnklaveSumbitAsyncTask extends AsyncTask<Void, Void, Result> {
         } catch (Exception e) {
             Logger.e("Error posting enklave", e);
             result.message = e.getMessage();
+            if (result.message == null){
+                result.message = e.toString();
+            }
         } finally {
             if (es != null) {
                 es.finish();
