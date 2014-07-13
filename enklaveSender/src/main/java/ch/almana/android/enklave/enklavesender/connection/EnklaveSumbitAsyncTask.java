@@ -46,13 +46,13 @@ public class EnklaveSumbitAsyncTask extends AsyncTask<Void, Void, Result> {
             if (result.success) {
                 act.clearForm();
                 Toast.makeText(act, "Your Enklave has been submitted, please check your e-mail!", Toast.LENGTH_LONG).show();
+//                if (Settings.getInstance(act).isDebugMode()) {
+//                    Intent i = new Intent(act, WebsiteActivity.class);
+//                    i.putExtra(WebsiteActivity.EXTRA_HTML, result.response);
+//                    act.startActivity(i);
+//                }
             } else {
                 Toast.makeText(act, "Error posting Enklave: " + result.message, Toast.LENGTH_LONG).show();
-            }
-            if (Settings.getInstance(act).isDebugMode()) {
-                Intent i = new Intent(act, WebsiteActivity.class);
-                i.putExtra(WebsiteActivity.EXTRA_HTML, result.response);
-                act.startActivity(i);
             }
         }
     }
