@@ -1,51 +1,66 @@
 package ch.almana.android.enklave.enklavesender.utils;
 
-import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.os.AsyncTask;
+import android.widget.ImageView;
 
 /**
  * Created by vogtp on 7/13/14.
  *
  */
-public class BitmapScaler {
+public class BitmapScaler extends AsyncTask<ImageView, Void, Bitmap> {
 
+    private static final int MAX_IMAGE_SIZE = 1600;
 
-    public static int calculateInSampleSize(
-            BitmapFactory.Options options, int reqWidth, int reqHeight) {
-    // Raw height and width of image
-    final int height = options.outHeight;
-    final int width = options.outWidth;
-    int inSampleSize = 1;
+    private ImageView imageView;
+    private boolean hasNewSize = Logger.DEBUG;
 
-    if (height > reqHeight || width > reqWidth) {
+    @Override
+    protected Bitmap doInBackground(ImageView... params) {
+        imageView = params[0];
+        return scaleImage(((BitmapDrawable) imageView.getDrawable()).getBitmap());
+    }
 
-        final int halfHeight = height / 2;
-        final int halfWidth = width / 2;
-
-        // Calculate the largest inSampleSize value that is a power of 2 and keeps both
-        // height and width larger than the requested height and width.
-        while ((halfHeight / inSampleSize) > reqHeight
-                && (halfWidth / inSampleSize) > reqWidth) {
-            inSampleSize *= 2;
+    @Override
+    protected void onPostExecute(Bitmap bitmap) {
+        super.onPostExecute(bitmap);
+        if (hasNewSize) {
+            imageView.setImageBitmap(bitmap);
         }
     }
 
-    return inSampleSize;
-}
-    public static Bitmap decodeSampledBitmapFromResource(Resources res, int resId,
-        int reqWidth, int reqHeight) {
+    @Override
+    protected void onProgressUpdate(Void... values) {
+        super.onProgressUpdate(values);
+    }
 
-    // First decode with inJustDecodeBounds=true to check dimensions
-    final BitmapFactory.Options options = new BitmapFactory.Options();
-    options.inJustDecodeBounds = true;
-    BitmapFactory.decodeResource(res, resId, options);
+    private Bitmap scaleImage(Bitmap bitmap) {
+        // Raw height and width of image
+        final int height = bitmap.getHeight();
+        final int width = bitmap.getWidth();
+        int inSampleSize = 1;
 
-    // Calculate inSampleSize
-    options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+        int reqHeight = MAX_IMAGE_SIZE;//imageView.getHeight();
+        int reqWidth =  MAX_IMAGE_SIZE;//imageView.getWidth();
+            Logger.w("Got image  " + width + "/" + height + " should be " + reqHeight + "/" + reqWidth);
+        if (height > reqHeight || width > reqWidth) {
 
-    // Decode bitmap with inSampleSize set
-    options.inJustDecodeBounds = false;
-    return BitmapFactory.decodeResource(res, resId, options);
-}
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) > reqHeight
+                    && (halfWidth / inSampleSize) > reqWidth) {
+                inSampleSize *= 2;
+            }
+
+            hasNewSize = true;
+            Logger.w("Warn scaling image from " + width + "/" + height + " to" + halfWidth + "/" + halfHeight);
+            return Bitmap.createScaledBitmap(bitmap, halfWidth, halfHeight, false);
+        }
+        return bitmap;
+    }
+
 }

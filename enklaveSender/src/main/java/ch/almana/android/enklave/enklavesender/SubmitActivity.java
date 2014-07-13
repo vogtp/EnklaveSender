@@ -34,6 +34,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import ch.almana.android.enklave.enklavesender.connection.EnklaveSubmit;
 import ch.almana.android.enklave.enklavesender.connection.EnklaveSubmitConnection;
+import ch.almana.android.enklave.enklavesender.utils.BitmapScaler;
 import ch.almana.android.enklave.enklavesender.utils.Debug;
 import ch.almana.android.enklave.enklavesender.utils.Logger;
 
@@ -157,6 +158,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
             photoUri = getIntent().getParcelableExtra(Intent.EXTRA_STREAM);
             Logger.i("Got image from intent: " + photoUri);
             imageView.setImageURI(photoUri);
+            scalePhoto(imageView);
             hasImage = true;
         } else {
             imageView.setOnClickListener(new View.OnClickListener() {
@@ -180,6 +182,10 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
         }
     }
 
+    private void scalePhoto(ImageView iv) {
+        new BitmapScaler().execute(iv);
+    }
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -193,6 +199,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
             photoBitmap = (Bitmap) data.getExtras().get("data");
             if (photoBitmap != null) {
                 imageView.setImageBitmap(photoBitmap);
+                scalePhoto(imageView);
                 photoUri = null;
                 hasImage = true;
             } else {
