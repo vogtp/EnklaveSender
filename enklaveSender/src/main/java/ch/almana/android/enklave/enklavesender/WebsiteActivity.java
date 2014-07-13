@@ -123,7 +123,7 @@ public class WebsiteActivity extends ActionBarActivity {
             reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             String line = reader.readLine();
             while (line != null) {
-                Logger.i("Line: " + line);
+                Logger.v("Line: " + line);
                 if (line.contains("LOGIN")) {
                     return false;
                 }
