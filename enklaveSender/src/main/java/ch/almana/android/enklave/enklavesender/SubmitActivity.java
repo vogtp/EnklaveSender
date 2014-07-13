@@ -201,10 +201,16 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
             enableSendButton();
         }
     }
+    public boolean hasHoloTheme() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
+    }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private void showDebugInfo() {
-        final ActionBar actionBar = getActionBar();
+         ActionBar actionBar = null;
+        if (hasHoloTheme()) {
+            actionBar = getActionBar();
+        }
         if (isDebugMode) {
             if (actionBar != null) {
                 actionBar.setSubtitle("********* Debug *********");
