@@ -287,7 +287,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.website, menu);
-        if (Logger.DEBUG) {
+        if (isDebugMode) {
             getMenuInflater().inflate(R.menu.debug, menu);
             menu.findItem(R.id.action_debug).setChecked(isDebugMode);
         }
@@ -297,7 +297,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        if (Logger.DEBUG) {
+        if (isDebugMode) {
             menu.findItem(R.id.action_debug).setChecked(isDebugMode);
         }
         return super.onPrepareOptionsMenu(menu);
