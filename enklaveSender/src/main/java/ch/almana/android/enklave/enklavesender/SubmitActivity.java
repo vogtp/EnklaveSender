@@ -138,6 +138,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
             photoBitmap = savedInstanceState.getParcelable(EXTRA_IMAGE);
             if (photoBitmap != null) {
                 imageView.setImageBitmap(photoBitmap);
+                hasImage = true;
             }
             enklaveLatLng = savedInstanceState.getParcelable(EXTRA_LATLON);
             if (enklaveLatLng != null) {
