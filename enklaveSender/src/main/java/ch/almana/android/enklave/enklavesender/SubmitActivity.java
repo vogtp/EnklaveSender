@@ -33,8 +33,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import ch.almana.android.enklave.enklavesender.connection.EnklaveSumbitAsyncTask;
 import ch.almana.android.enklave.enklavesender.utils.BitmapScaler;
-import ch.almana.android.enklave.enklavesender.utils.Debug;
 import ch.almana.android.enklave.enklavesender.utils.Logger;
+import ch.almana.android.enklave.enklavesender.utils.Settings;
 
 public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapLongClickListener, GoogleMap.OnMapClickListener {
 
@@ -50,7 +50,6 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
     private LatLng enklaveLatLng = null;
     private Button buSend;
     private EditText etName;
-    private boolean debugMode;
     private LocationManager locationManager;
     private LocationListener locationListener;
     private boolean hasImage = false;
@@ -62,7 +61,6 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-        debugMode = Debug.isUnsinedPackage(this);
         setContentView(R.layout.activity_submit);
         setTitle(getString(R.string.submitActivityTitle));
 
@@ -108,7 +106,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
                 }
                 buSend.setEnabled(false);
 
-                if (isDebugMode()) {
+                if (Settings.getInstance(SubmitActivity.this).isDebugMode()) {
                     name = name + "_BANANA_from_tille";
                 }
 
@@ -221,7 +219,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
         if (hasHoloTheme()) {
             actionBar = getActionBar();
         }
-        if (isDebugMode()) {
+        if (Settings.getInstance(SubmitActivity.this).isDebugMode()) {
             if (actionBar != null) {
                 actionBar.setSubtitle("********* Debug *********");
             }
@@ -232,10 +230,6 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
             }
             buSend.setText(R.string.send);
         }
-    }
-
-    public boolean isDebugMode() {
-        return debugMode;
     }
 
     private class CheckLogin extends AsyncTask<Object, Object, Boolean> {
@@ -294,9 +288,10 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.website, menu);
-        if (isDebugMode()) {
+        final Settings settings = Settings.getInstance(SubmitActivity.this);
+        if (settings.enableDebugOption()) {
             getMenuInflater().inflate(R.menu.debug, menu);
-            menu.findItem(R.id.action_debug).setChecked(isDebugMode());
+            menu.findItem(R.id.action_debug).setChecked(settings.isDebugMode());
         }
 
         return true;
@@ -304,8 +299,9 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        if (isDebugMode()) {
-            menu.findItem(R.id.action_debug).setChecked(isDebugMode());
+        final Settings settings = Settings.getInstance(SubmitActivity.this);
+        if (settings.enableDebugOption()) {
+            menu.findItem(R.id.action_debug).setChecked(settings.isDebugMode());
         }
         return super.onPrepareOptionsMenu(menu);
     }
@@ -320,8 +316,9 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
             startActivity(new Intent(this, WebsiteActivity.class));
             return true;
         } else if (id == R.id.action_debug) {
-            debugMode = !item.isChecked();
+            boolean debugMode = !item.isChecked();
             item.setChecked(debugMode);
+            Settings.getInstance(this).setDebugMode(debugMode);
             showDebugInfo();
         }
         return super.onOptionsItemSelected(item);

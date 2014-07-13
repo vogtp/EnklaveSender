@@ -10,6 +10,7 @@ import com.google.android.gms.maps.model.LatLng;
 import ch.almana.android.enklave.enklavesender.SubmitActivity;
 import ch.almana.android.enklave.enklavesender.WebsiteActivity;
 import ch.almana.android.enklave.enklavesender.utils.Logger;
+import ch.almana.android.enklave.enklavesender.utils.Settings;
 
 final class Result {
 
@@ -20,6 +21,7 @@ final class Result {
 
 /**
  * Created by vogtp on 7/13/14.
+ *
  */
 public class EnklaveSumbitAsyncTask extends AsyncTask<Void, Void, Result> {
 
@@ -46,7 +48,7 @@ public class EnklaveSumbitAsyncTask extends AsyncTask<Void, Void, Result> {
             } else {
                 Toast.makeText(act, "Error posting Enklave: " + result.message, Toast.LENGTH_LONG).show();
             }
-            if (act.isDebugMode()) {
+            if (Settings.getInstance(act).isDebugMode()) {
                 Intent i = new Intent(act, WebsiteActivity.class);
                 i.putExtra(WebsiteActivity.EXTRA_HTML, result.response);
                 act.startActivity(i);

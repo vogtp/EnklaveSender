@@ -8,6 +8,7 @@ public class ESApplication extends Application {
     public void onCreate() {
         super.onCreate();
         Logger.i("Loading enklave sender application");
+        Settings.getInstance(getApplicationContext());
         initCookieStore();
 
     }
