@@ -42,6 +42,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
     private static final String EXTRA_IMAGE = "EXTRA_IMAGE";
     private static final String EXTRA_NAME = "EXTRA_NAME";
     private static final String EXTRA_LATLON = "EXTRA_LATLON";
+    private final Settings settings = Settings.getInstance(SubmitActivity.this);
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private ImageView imageView;
     private MarkerOptions marker;
@@ -63,6 +64,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.activity_submit);
         setTitle(getString(R.string.submitActivityTitle));
+        setSubtitle(false);
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         locationListener = new LocationListener() {
@@ -106,7 +108,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
                 }
                 buSend.setEnabled(false);
 
-                if (Settings.getInstance(SubmitActivity.this).isDebugMode()) {
+                if (settings.isDebugMode()) {
                     name = name + "_BANANA_from_tille";
                 }
 
@@ -142,46 +144,20 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
                 updateMarker(enklaveLatLng);
             }
             etName.setText(savedInstanceState.getString(EXTRA_NAME));
+            enableSendButton();
         }
     }
 
-//    private void submitEnklave(String name, final LatLng latLng, Bitmap image) {
-//        setProgressBarIndeterminateVisibility(true);
-//        final String finalName = name;
-//        Handler h = new Handler();
-//        h.post(new Runnable() {
-//            @Override
-//            public void run() {
-//                try {
-//
-////                            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-////                            StrictMode.setThreadPolicy(policy);
-//                    EnklaveSubmit es = new EnklaveSubmitConnection();
-//
-//                    es.setEnklaveName(finalName);
-//
-//                    es.setEnklaveImage(image);
-//                    es.setLatitude(latLng.latitude);
-//                    es.setLongitude(latLng.longitude);
-//                    es.doPost();
-//                    String response = es.getResponse();
-//                    es.finish();
-//                    if (isDebugMode) {
-//                        Intent i = new Intent(SubmitActivity.this, WebsiteActivity.class);
-//                        i.putExtra(WebsiteActivity.EXTRA_HTML, response);
-//                        startActivity(i);
-//                    }
-//                    Toast.makeText(getApplicationContext(), "Your Enklave has been submitted, please check your e-mail!", Toast.LENGTH_LONG).show();
-//                } catch (Exception e) {
-//                    Logger.e("Error posting enklave", e);
-//                    Toast.makeText(SubmitActivity.this, "Error posting enklave: " + e.getMessage(), Toast.LENGTH_LONG).show();
-//                } finally {
-//                    setProgressBarIndeterminateVisibility(false);
-//                }
-//
-//            }
-//        });
-//    }
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    private void setSubtitle(boolean debug) {
+        if (settings.hasHoloTheme()){
+            String subtitle = getString(R.string.version, settings.getVersionName());
+            if (settings.isDebugMode()) {
+                subtitle += " (DEBUG)";
+            }
+            getActionBar().setSubtitle(subtitle);
+        }
+    }
 
     private void scalePhoto(ImageView iv) {
         new BitmapScaler().execute(iv);
@@ -215,21 +191,20 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private void showDebugInfo() {
-         ActionBar actionBar = null;
-        if (hasHoloTheme()) {
-            actionBar = getActionBar();
-        }
-        if (Settings.getInstance(SubmitActivity.this).isDebugMode()) {
-            if (actionBar != null) {
-                actionBar.setSubtitle("********* Debug *********");
-            }
+
+        if (settings.isDebugMode()) {
+           setSubtitle(true);
             buSend.setText("Send Test Data");
         } else {
-            if (actionBar != null) {
-                actionBar.setSubtitle(null);
-            }
+            setSubtitle(false);
             buSend.setText(R.string.send);
         }
+    }
+
+    public void clearForm() {
+        etName.setText(null);
+        enklaveLatLng = null;
+        imageView.setImageResource(R.drawable.camera1);
     }
 
     private class CheckLogin extends AsyncTask<Object, Object, Boolean> {
@@ -256,19 +231,6 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
         showDebugInfo();
         checkLogin = new CheckLogin();
         checkLogin.execute();
-//        Handler h = new Handler();
-//        h.post(new Runnable() {
-//            @Override
-//            public void run() {
-//
-//                if (!WebsiteActivity.isLoggedIn()) {
-//                    //  Toast.makeText(SubmitActivity.this, getString(R.string.msg_login_todo), Toast.LENGTH_LONG).show();
-//                    final Intent intent = new Intent(SubmitActivity.this, WebsiteActivity.class);
-//                    intent.putExtra(WebsiteActivity.EXTRA_LOGIN, true);
-//                    startActivity(intent);
-//                }
-//            }
-//        });
         setUpMapIfNeeded();
         updateLocation();
         enableSendButton();
@@ -288,7 +250,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.website, menu);
-        final Settings settings = Settings.getInstance(SubmitActivity.this);
+        final Settings settings = this.settings;
         if (settings.enableDebugOption()) {
             getMenuInflater().inflate(R.menu.debug, menu);
             menu.findItem(R.id.action_debug).setChecked(settings.isDebugMode());
@@ -299,7 +261,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        final Settings settings = Settings.getInstance(SubmitActivity.this);
+        final Settings settings = this.settings;
         if (settings.enableDebugOption()) {
             menu.findItem(R.id.action_debug).setChecked(settings.isDebugMode());
         }

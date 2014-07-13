@@ -12,5 +12,6 @@
     <string name="submitActivityTitle">Propose Enklave to Council</string>
     <string name="action_website">Website</string>
     <string name="title_enklave_login">Eklave Login</string>
+    <string name="version">Version %s</string>
 
 </resources>

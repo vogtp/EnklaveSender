@@ -44,6 +44,7 @@ public class EnklaveSumbitAsyncTask extends AsyncTask<Void, Void, Result> {
         if (act != null) {
             act.setProgressBarIndeterminateVisibility(false);
             if (result.success) {
+                act.clearForm();
                 Toast.makeText(act, "Your Enklave has been submitted, please check your e-mail!", Toast.LENGTH_LONG).show();
             } else {
                 Toast.makeText(act, "Error posting Enklave: " + result.message, Toast.LENGTH_LONG).show();
