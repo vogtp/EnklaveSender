@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="ch.almana.android.enklave.enklavesender"
     android:versionCode="201407133"
-    android:versionName="0.6.1">
+    android:versionName="0.6.2">
 
     <application
         android:name=".utils.ESApplication"
