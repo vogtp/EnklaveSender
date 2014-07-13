@@ -13,7 +13,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
@@ -32,8 +31,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import ch.almana.android.enklave.enklavesender.connection.EnklaveSubmit;
-import ch.almana.android.enklave.enklavesender.connection.EnklaveSubmitConnection;
+import ch.almana.android.enklave.enklavesender.connection.EnklaveSumbitAsyncTask;
 import ch.almana.android.enklave.enklavesender.utils.BitmapScaler;
 import ch.almana.android.enklave.enklavesender.utils.Debug;
 import ch.almana.android.enklave.enklavesender.utils.Logger;
@@ -52,7 +50,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
     private LatLng enklaveLatLng = null;
     private Button buSend;
     private EditText etName;
-    private boolean isDebugMode;
+    private boolean debugMode;
     private LocationManager locationManager;
     private LocationListener locationListener;
     private boolean hasImage = false;
@@ -64,7 +62,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-        isDebugMode = Debug.isUnsinedPackage(this);
+        debugMode = Debug.isUnsinedPackage(this);
         setContentView(R.layout.activity_submit);
         setTitle(getString(R.string.submitActivityTitle));
 
@@ -109,47 +107,14 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
                     return;
                 }
                 buSend.setEnabled(false);
-                setProgressBarIndeterminateVisibility(true);
 
-                if (isDebugMode) {
+                if (isDebugMode()) {
                     name = name + "_BANANA_from_tille";
                 }
 
+                new EnklaveSumbitAsyncTask(SubmitActivity.this, name,enklaveLatLng, ((BitmapDrawable) imageView.getDrawable()).getBitmap()).execute();
 
-                final String finalName = name;
-                Handler h = new Handler();
-                h.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-
-//                            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-//                            StrictMode.setThreadPolicy(policy);
-                            EnklaveSubmit es = new EnklaveSubmitConnection();
-
-                            es.setEnklaveName(finalName);
-
-                            es.setEnklaveImage(((BitmapDrawable) imageView.getDrawable()).getBitmap());
-                            es.setLatitude(enklaveLatLng.latitude);
-                            es.setLongitude(enklaveLatLng.longitude);
-                            es.doPost();
-                            String response = es.getResponse();
-                            es.finish();
-                            if (isDebugMode) {
-                                Intent i = new Intent(SubmitActivity.this, WebsiteActivity.class);
-                                i.putExtra(WebsiteActivity.EXTRA_HTML, response);
-                                startActivity(i);
-                            }
-                            Toast.makeText(getApplicationContext(), "Your Enklave has been submitted, please check your e-mail!", Toast.LENGTH_LONG).show();
-                        } catch (Exception e) {
-                            Logger.e("Error posting enklave", e);
-                            Toast.makeText(SubmitActivity.this, "Error posting enklave: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                        } finally {
-                            setProgressBarIndeterminateVisibility(false);
-                        }
-
-                    }
-                });
+//                submitEnklave(name,enklaveLatLng, ((BitmapDrawable) imageView.getDrawable()).getBitmap());
             }
         });
         setUpMapIfNeeded();
@@ -181,6 +146,44 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
             etName.setText(savedInstanceState.getString(EXTRA_NAME));
         }
     }
+
+//    private void submitEnklave(String name, final LatLng latLng, Bitmap image) {
+//        setProgressBarIndeterminateVisibility(true);
+//        final String finalName = name;
+//        Handler h = new Handler();
+//        h.post(new Runnable() {
+//            @Override
+//            public void run() {
+//                try {
+//
+////                            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+////                            StrictMode.setThreadPolicy(policy);
+//                    EnklaveSubmit es = new EnklaveSubmitConnection();
+//
+//                    es.setEnklaveName(finalName);
+//
+//                    es.setEnklaveImage(image);
+//                    es.setLatitude(latLng.latitude);
+//                    es.setLongitude(latLng.longitude);
+//                    es.doPost();
+//                    String response = es.getResponse();
+//                    es.finish();
+//                    if (isDebugMode) {
+//                        Intent i = new Intent(SubmitActivity.this, WebsiteActivity.class);
+//                        i.putExtra(WebsiteActivity.EXTRA_HTML, response);
+//                        startActivity(i);
+//                    }
+//                    Toast.makeText(getApplicationContext(), "Your Enklave has been submitted, please check your e-mail!", Toast.LENGTH_LONG).show();
+//                } catch (Exception e) {
+//                    Logger.e("Error posting enklave", e);
+//                    Toast.makeText(SubmitActivity.this, "Error posting enklave: " + e.getMessage(), Toast.LENGTH_LONG).show();
+//                } finally {
+//                    setProgressBarIndeterminateVisibility(false);
+//                }
+//
+//            }
+//        });
+//    }
 
     private void scalePhoto(ImageView iv) {
         new BitmapScaler().execute(iv);
@@ -218,7 +221,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
         if (hasHoloTheme()) {
             actionBar = getActionBar();
         }
-        if (isDebugMode) {
+        if (isDebugMode()) {
             if (actionBar != null) {
                 actionBar.setSubtitle("********* Debug *********");
             }
@@ -229,6 +232,10 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
             }
             buSend.setText(R.string.send);
         }
+    }
+
+    public boolean isDebugMode() {
+        return debugMode;
     }
 
     private class CheckLogin extends AsyncTask<Object, Object, Boolean> {
@@ -287,9 +294,9 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.website, menu);
-        if (isDebugMode) {
+        if (isDebugMode()) {
             getMenuInflater().inflate(R.menu.debug, menu);
-            menu.findItem(R.id.action_debug).setChecked(isDebugMode);
+            menu.findItem(R.id.action_debug).setChecked(isDebugMode());
         }
 
         return true;
@@ -297,8 +304,8 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        if (isDebugMode) {
-            menu.findItem(R.id.action_debug).setChecked(isDebugMode);
+        if (isDebugMode()) {
+            menu.findItem(R.id.action_debug).setChecked(isDebugMode());
         }
         return super.onPrepareOptionsMenu(menu);
     }
@@ -313,8 +320,8 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
             startActivity(new Intent(this, WebsiteActivity.class));
             return true;
         } else if (id == R.id.action_debug) {
-            isDebugMode = !item.isChecked();
-            item.setChecked(isDebugMode);
+            debugMode = !item.isChecked();
+            item.setChecked(debugMode);
             showDebugInfo();
         }
         return super.onOptionsItemSelected(item);
