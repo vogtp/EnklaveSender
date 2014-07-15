@@ -1,16 +1,13 @@
-package ch.almana.android.enklave.enklavesender.connection;
+package ch.almana.android.enklave.sender.connection;
 
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import ch.almana.android.enklave.enklavesender.SubmitActivity;
-import ch.almana.android.enklave.enklavesender.WebsiteActivity;
-import ch.almana.android.enklave.enklavesender.utils.Logger;
-import ch.almana.android.enklave.enklavesender.utils.Settings;
+import ch.almana.android.enklave.sender.SubmitActivity;
+import ch.almana.android.enklave.sender.utils.Logger;
 
 final class Result {
 

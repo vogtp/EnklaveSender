@@ -1,4 +1,4 @@
-package ch.almana.android.enklave.enklavesender.utils;
+package ch.almana.android.enklave.sender.utils;
 
 import android.content.Intent;
 import android.os.Bundle;

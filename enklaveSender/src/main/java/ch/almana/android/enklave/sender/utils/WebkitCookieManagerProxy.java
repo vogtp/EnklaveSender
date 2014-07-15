@@ -1,4 +1,4 @@
-package ch.almana.android.enklave.enklavesender.utils;
+package ch.almana.android.enklave.sender.utils;
 
 import java.io.IOException;
 import java.net.CookieManager;

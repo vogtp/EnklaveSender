@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="ch.almana.android.enklave.enklavesender"
-    android:versionCode="201407140"
-    android:versionName="1.0.0">
+    package="ch.almana.android.enklave.sender"
+    android:versionCode="201407150"
+    android:versionName="0.9.0">
 
     <application
-        android:name=".utils.ESApplication"
+        android:name="ch.almana.android.enklave.sender.utils.ESApplication"
         android:allowBackup="true"
         android:hardwareAccelerated="false"
         android:icon="@drawable/enklave_sender"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".SubmitActivity"   android:hardwareAccelerated="false"
+            android:name="ch.almana.android.enklave.sender.SubmitActivity"   android:hardwareAccelerated="false"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -36,7 +36,7 @@
             android:value="@string/google_maps_key_release" />
 
         <activity
-            android:name=".WebsiteActivity"
+            android:name="ch.almana.android.enklave.sender.WebsiteActivity"
             android:label="@string/title_activity_website" />
     </application>
 

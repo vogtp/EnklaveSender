@@ -1,7 +1,6 @@
-package ch.almana.android.enklave.enklavesender;
+package ch.almana.android.enklave.sender;
 
 import android.annotation.TargetApi;
-import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -31,10 +30,10 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import ch.almana.android.enklave.enklavesender.connection.EnklaveSumbitAsyncTask;
-import ch.almana.android.enklave.enklavesender.utils.BitmapScaler;
-import ch.almana.android.enklave.enklavesender.utils.Logger;
-import ch.almana.android.enklave.enklavesender.utils.Settings;
+import ch.almana.android.enklave.sender.connection.EnklaveSumbitAsyncTask;
+import ch.almana.android.enklave.sender.utils.BitmapScaler;
+import ch.almana.android.enklave.sender.utils.Logger;
+import ch.almana.android.enklave.sender.utils.Settings;
 
 public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapLongClickListener, GoogleMap.OnMapClickListener {
 

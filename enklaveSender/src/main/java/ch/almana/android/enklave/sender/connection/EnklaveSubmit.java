@@ -1,9 +1,8 @@
-package ch.almana.android.enklave.enklavesender.connection;
+package ch.almana.android.enklave.sender.connection;
 
 import android.graphics.Bitmap;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
 /**
  * Created by vogtp on 7/4/14.

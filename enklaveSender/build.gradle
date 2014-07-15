@@ -14,7 +14,7 @@ android {
     compileSdkVersion 19
     buildToolsVersion '19.1.0'
     defaultConfig {
-        applicationId 'ch.almana.android.enklave.enklavesender'
+        applicationId 'ch.almana.android.enklave.sender'
         minSdkVersion 10
         targetSdkVersion 19
     }

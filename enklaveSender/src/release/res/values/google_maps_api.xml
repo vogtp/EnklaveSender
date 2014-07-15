@@ -3,14 +3,12 @@
 
     To get one, follow this link, follow the directions and press "Create" at the end:
 
-https://console.developers.google.com/flows/enableapi?apiid=maps_android_backend&keyType=CLIENT_SIDE_ANDROID&r=9F:A6:84:34:5E:E8:F1:58:5C:16:00:8B:09:62:2E:EA:96:33:99:28%3Bch.almana.android.enklave.enklavesender
+https://console.developers.google.com/flows/enableapi?apiid=maps_android_backend&keyType=CLIENT_SIDE_ANDROID&r=9F:A6:84:34:5E:E8:F1:58:5C:16:00:8B:09:62:2E:EA:96:33:99:28%3Bch.almana.android.enklave.sender
 
     You can also add your credentials to an existing key, using this line:
-    9F:A6:84:34:5E:E8:F1:58:5C:16:00:8B:09:62:2E:EA:96:33:99:28;ch.almana.android.enklave.enklavesender
-
-    Once you have your key (it starts with "AIza"), replace the "google_maps_key"
+    9F:A6:84:34:5E:E8:F1:58:5C:16:00:8B:09:62:2E:EA:96:33:99:28;sendernce you have your key (it starts with "AIza"), replace the "google_maps_key"
     string in this file.
     --></string>
 
-    <string name="google_maps_key" templateMergeStrategy="preserve">YOUR_KEY_HERE</string>
+    <string name="google_maps_key" templateMergeStrategy="preserve">AIzaSyDOnp8W49ytMvP0AhNXE7IoNETND-Cw1FA</string>
 </resources>

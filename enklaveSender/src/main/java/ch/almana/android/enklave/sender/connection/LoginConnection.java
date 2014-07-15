@@ -1,4 +1,4 @@
-package ch.almana.android.enklave.enklavesender.connection;
+package ch.almana.android.enklave.sender.connection;
 
 import java.io.IOException;
 

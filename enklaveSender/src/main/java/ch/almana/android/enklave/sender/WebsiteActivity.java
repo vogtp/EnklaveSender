@@ -1,4 +1,4 @@
-package ch.almana.android.enklave.enklavesender;
+package ch.almana.android.enklave.sender;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,8 +17,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import ch.almana.android.enklave.enklavesender.connection.LoginWebViewClient;
-import ch.almana.android.enklave.enklavesender.utils.Logger;
+import ch.almana.android.enklave.sender.connection.LoginWebViewClient;
+import ch.almana.android.enklave.sender.utils.Logger;
 
 public class WebsiteActivity extends ActionBarActivity {
 

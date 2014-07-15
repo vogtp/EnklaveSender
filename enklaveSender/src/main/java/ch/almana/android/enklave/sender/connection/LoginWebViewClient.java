@@ -1,10 +1,10 @@
-package ch.almana.android.enklave.enklavesender.connection;
+package ch.almana.android.enklave.sender.connection;
 
 import android.app.Activity;
 import android.os.Handler;
 import android.webkit.WebView;
 
-import ch.almana.android.enklave.enklavesender.WebsiteActivity;
+import ch.almana.android.enklave.sender.WebsiteActivity;
 
 /**
  * Created by vogtp on 7/5/14.
