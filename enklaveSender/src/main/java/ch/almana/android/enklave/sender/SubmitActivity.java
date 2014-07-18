@@ -343,7 +343,11 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
             locationManager.requestSingleUpdate(LocationManager.PASSIVE_PROVIDER, locationListener, getMainLooper());
         } else {
             final LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
+            int zoom = 16;
+            if (settings.isDebugMode()){
+                zoom = 1;
+            }
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
 //            updateMarker(latLng);
         }
     }
