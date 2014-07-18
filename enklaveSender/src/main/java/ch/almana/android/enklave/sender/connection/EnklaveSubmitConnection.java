@@ -15,7 +15,6 @@ public class EnklaveSubmitConnection extends BaseEnklaveConnection implements En
 
     @Override
     public void setEnklaveImage(Bitmap bitmap) {
-        //FIMXE make more generic
         image = bitmap;
     }
 

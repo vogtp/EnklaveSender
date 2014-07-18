@@ -42,6 +42,7 @@ public abstract class BaseEnklaveConnection {
         conn.setUseCaches(false);
         conn.setRequestProperty("Connection", "Keep-Alive");
         conn.setRequestProperty("Cache-Control", "no-cache");
+        //conn.setRequestProperty("charset","utf-8");
         conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + this.boundary);
         params = new ArrayList<NameValuePair>();
     }
