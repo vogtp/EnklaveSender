@@ -2,9 +2,6 @@ package ch.almana.android.enklave.sender.connection;
 
 import android.graphics.Bitmap;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
-
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -20,10 +17,11 @@ import java.util.List;
  * Created by vogtp on 7/4/14.
  */
 public abstract class BaseEnklaveConnection {
-
+    private final static String charset = "utf-8";
+   // private final static String charset = "UTF-8";
     private final URL url;
     private final HttpURLConnection conn;
-    private final List<NameValuePair> params;
+    private final List<StingNumberNameValuePair> params;
     String attachmentName = "location_picture";
     String attachmentFileName = "location_picture.jpg";
     String crlf = "\r\n";
@@ -42,27 +40,28 @@ public abstract class BaseEnklaveConnection {
         conn.setUseCaches(false);
         conn.setRequestProperty("Connection", "Keep-Alive");
         conn.setRequestProperty("Cache-Control", "no-cache");
-        //conn.setRequestProperty("charset","utf-8");
+        conn.setRequestProperty("charset",charset);
+        conn.setRequestProperty("accept-charset", charset);
         conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + this.boundary);
-        params = new ArrayList<NameValuePair>();
+        params = new ArrayList<StingNumberNameValuePair>();
     }
 
-    protected void addParam(String key, String value) {
-        params.add(new BasicNameValuePair(key, value));
+    protected void addParam(String key, String value, boolean isNumber) {
+        params.add(new StingNumberNameValuePair(key, value, isNumber));
     }
 
     public void doPost() throws IOException {
 
         OutputStream os = conn.getOutputStream();
-        DataOutputStream request = new DataOutputStream(conn.getOutputStream());
-        request.writeBytes(this.twoHyphens + this.boundary + this.crlf);
-        addFields(request, params);
+        DataOutputStream dos = new DataOutputStream(conn.getOutputStream());
+        dos.writeBytes(this.twoHyphens + this.boundary + this.crlf);
+        addFields(dos, params);
 
         if (image != null) {
-            addImage(request);
+            addImage(dos);
         }
-        request.flush();
-        request.close();
+        dos.flush();
+        dos.close();
         os.flush();
         os.close();
     }
@@ -94,13 +93,17 @@ public abstract class BaseEnklaveConnection {
         conn.disconnect();
     }
 
-    private void addFields(DataOutputStream dos, List<NameValuePair> params) throws IOException {
-        for (NameValuePair pair : params) {
+    private void addFields(DataOutputStream dos, List<StingNumberNameValuePair> params) throws IOException {
+        for (StingNumberNameValuePair pair : params) {
             dos.writeBytes("Content-Disposition: form-data; name=\"" + pair.getName() + "\"" + crlf);
             dos.writeBytes("Content-Type: text/plain; charset=UTF-8" + crlf);
             dos.writeBytes("Content-Length: " + pair.getValue().length() + crlf);
             dos.writeBytes(crlf);
-            dos.writeBytes(pair.getValue() + crlf);
+            if (pair.isNumber()){
+                 dos.writeBytes(pair.getValue() + crlf);
+            }else{
+                dos.writeUTF(pair.getValue() + crlf);
+            }
             dos.writeBytes(twoHyphens + boundary + crlf);
         }
     }

@@ -10,6 +10,7 @@ import java.io.IOException;
 public class EnklaveSubmitConnection extends BaseEnklaveConnection implements EnklaveSubmit {
 
     public EnklaveSubmitConnection() throws IOException {
+//        super("http://enklave-mobile.com/location_add_test");
         super("http://www.enklave-mobile.com/location_add#locationform");
     }
 
@@ -20,17 +21,17 @@ public class EnklaveSubmitConnection extends BaseEnklaveConnection implements En
 
     @Override
     public void setEnklaveName(String name) {
-        addParam("location_name", name);
+        addParam("location_name", name, false);
     }
 
     @Override
     public void setLatitude(double latitude) {
-        addParam("latitude", latitude + "");
+        addParam("latitude", latitude + "", true);
     }
 
     @Override
     public void setLongitude(double longitude) {
-        addParam("longitude", longitude + "");
+        addParam("longitude", longitude + "", true);
     }
 
 

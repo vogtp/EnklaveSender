@@ -108,7 +108,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
                 buSend.setEnabled(false);
 
                 if (settings.isDebugMode()) {
-                    name = name + "_BANANA_from_tille";
+                    name = "BANANA_from_tille_"+ name;
                 }
 
                 new EnklaveSumbitAsyncTask(SubmitActivity.this, name,enklaveLatLng, ((BitmapDrawable) imageView.getDrawable()).getBitmap()).execute();
