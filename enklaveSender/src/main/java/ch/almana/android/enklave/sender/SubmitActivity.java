@@ -122,6 +122,15 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
 //                submitEnklave(name,enklaveLatLng, ((BitmapDrawable) imageView.getDrawable()).getBitmap());
             }
         });
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                cameraResultUri = Uri.fromFile(getCameraFile());
+                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, cameraResultUri);
+                startActivityForResult(cameraIntent, REQUEST_CODE_TAKE_PICTURE);
+            }
+        });
         setUpMapIfNeeded();
 
         if (getIntent().hasExtra(Intent.EXTRA_STREAM)) {
@@ -130,16 +139,6 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
             imageView.setImageURI(photoUri);
             scalePhoto(imageView);
             hasImage = true;
-        } else {
-            imageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    cameraResultUri = Uri.fromFile(getCameraFile());
-                    cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, cameraResultUri);
-                    startActivityForResult(cameraIntent, REQUEST_CODE_TAKE_PICTURE);
-                }
-            });
         }
         if (savedInstanceState != null) {
             Bitmap photoBitmap = savedInstanceState.getParcelable(EXTRA_IMAGE);
