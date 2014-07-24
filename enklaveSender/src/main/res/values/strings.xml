@@ -13,5 +13,6 @@
     <string name="action_website">Website</string>
     <string name="title_enklave_login">Eklave Login</string>
     <string name="version">PASS revision %s</string>
+    <string name="send_test_data">Send Test Data</string>
 
 </resources>

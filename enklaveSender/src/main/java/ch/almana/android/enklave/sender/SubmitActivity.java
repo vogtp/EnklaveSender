@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
@@ -29,6 +30,10 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.io.File;
+import java.text.DateFormat;
+import java.util.Random;
 
 import ch.almana.android.enklave.sender.connection.EnklaveSumbitAsyncTask;
 import ch.almana.android.enklave.sender.utils.BitmapScaler;
@@ -54,8 +59,9 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
     private LocationListener locationListener;
     private boolean hasImage = false;
     private Uri photoUri;
-    private Bitmap photoBitmap;
+    //    private Bitmap photoBitmap;
     private CheckLogin checkLogin;
+    private Uri cameraResultUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +69,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.activity_submit);
         setTitle(getString(R.string.submitActivityTitle));
-        setSubtitle(false);
+        setSubtitle();
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         locationListener = new LocationListener() {
@@ -108,10 +114,10 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
                 buSend.setEnabled(false);
 
                 if (settings.isDebugMode()) {
-                    name = "BANANA_from_tille_"+ name;
+                    name = "BANANA_from_tille_" + name;
                 }
 
-                new EnklaveSumbitAsyncTask(SubmitActivity.this, name,enklaveLatLng, ((BitmapDrawable) imageView.getDrawable()).getBitmap()).execute();
+                new EnklaveSumbitAsyncTask(SubmitActivity.this, name, enklaveLatLng, ((BitmapDrawable) imageView.getDrawable()).getBitmap()).execute();
 
 //                submitEnklave(name,enklaveLatLng, ((BitmapDrawable) imageView.getDrawable()).getBitmap());
             }
@@ -129,12 +135,14 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
                 @Override
                 public void onClick(View v) {
                     Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    cameraResultUri = Uri.fromFile(getCameraFile());
+                    cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, cameraResultUri);
                     startActivityForResult(cameraIntent, REQUEST_CODE_TAKE_PICTURE);
                 }
             });
         }
         if (savedInstanceState != null) {
-            photoBitmap = savedInstanceState.getParcelable(EXTRA_IMAGE);
+            Bitmap photoBitmap = savedInstanceState.getParcelable(EXTRA_IMAGE);
             if (photoBitmap != null) {
                 imageView.setImageBitmap(photoBitmap);
                 hasImage = true;
@@ -148,9 +156,22 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
         }
     }
 
+
+    private File getCameraFile() {
+        String root = Environment.getExternalStorageDirectory().toString();
+        File myDir = new File(root + "/enklave/");
+        myDir.mkdirs();
+        Random generator = new Random();
+        int n = 10000;
+        n = generator.nextInt(n);
+        String fname = "Enklave-" + DateFormat.getDateTimeInstance().format(System.currentTimeMillis()) + ".jpg";
+        return new File(myDir, fname);
+    }
+
+
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    private void setSubtitle(boolean debug) {
-        if (settings.hasHoloTheme()){
+    private void setSubtitle() {
+        if (settings.hasHoloTheme()) {
             String subtitle = getString(R.string.version, settings.getVersionName());
             if (settings.isDebugMode()) {
                 subtitle += " (DEBUG)";
@@ -173,11 +194,12 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE_TAKE_PICTURE && resultCode == RESULT_OK) {
-            photoBitmap = (Bitmap) data.getExtras().get("data");
-            if (photoBitmap != null) {
-                imageView.setImageBitmap(photoBitmap);
+//            photoBitmap = (Bitmap) data.getExtras().get("data");
+            if (cameraResultUri != null) {
+//                new ImageSaveAsyncTask().execute(photoBitmap.copy(photoBitmap.getConfig(), false));
+                imageView.setImageURI(cameraResultUri);
                 scalePhoto(imageView);
-                photoUri = null;
+//                photoUri = null;
                 hasImage = true;
             } else {
                 hasImage = false;
@@ -185,18 +207,17 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
             enableSendButton();
         }
     }
+
     public boolean hasHoloTheme() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private void showDebugInfo() {
-
+        setSubtitle();
         if (settings.isDebugMode()) {
-           setSubtitle(true);
-            buSend.setText("Send Test Data");
+            buSend.setText(getString(R.string.send_test_data));
         } else {
-            setSubtitle(false);
             buSend.setText(R.string.send);
         }
     }
@@ -344,7 +365,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
         } else {
             final LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
             int zoom = 16;
-            if (settings.isDebugMode()){
+            if (settings.isDebugMode()) {
                 zoom = 1;
             }
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
