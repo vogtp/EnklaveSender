@@ -267,6 +267,9 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
         etName.setText(null);
         enklaveLatLng = null;
         imageView.setImageResource(R.drawable.camera1);
+        if (mMap != null){
+            mMap.clear();
+        }
     }
 
     private class CheckLogin extends AsyncTask<Object, Object, Boolean> {
