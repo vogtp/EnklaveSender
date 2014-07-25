@@ -11,12 +11,12 @@
     <string name="enter_name">Please enter a name for the Enklave</string>
     <string name="submitActivityTitle">Propose Enklave to Council</string>
     <string name="action_website">Website</string>
-    <string name="title_enklave_login">Eklave Login</string>
+    <string name="title_enklave_login">Enklave Login</string>
     <string name="version">PASS revision %s</string>
     <string name="send_test_data">Send Test Data</string>
-    <string name="menu_statelite_view">Satelite view</string>
+    <string name="menu_statelite_view">Satellite view</string>
     <string name="changelog">Changelog</string>
-    <string name="problem_with_camera_image_size">There has been a problem accessing the fullsized image of you camera!  Please consider to submit images from the gallery...</string>
-    <string name="camer_issues">Camera issues have been detected, please submit the enklave from the gallery or retake the picture</string>
+    <string name="problem_with_camera_image_size">There has been a problem accessing the full sized image of you camera!  Please consider to submit images from the gallery…</string>
+    <string name="camer_issues">Camera issues have been detected, please submit the Enklave from the gallery or retake the picture</string>
 
 </resources>
