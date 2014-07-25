@@ -11,7 +11,7 @@ import java.io.Writer;
 import java.util.Date;
 
 public class Logger {
-    private static final String TAG = "JF";
+    private static final String TAG = "EnklaveSender";
     private static final String STACKTRACE_TAG = TAG + "StracktraceLog";
 
     public final static boolean DEBUG = false;
@@ -20,23 +20,24 @@ public class Logger {
         try {
             Log.e(TAG, msg, t);
         } catch (Throwable t1) {
+            // no nothing
         }
     }
 
     public static void w(final String msg, final Throwable t) {
-        Log.w(TAG, msg);
+        Log.w(TAG, msg, t);
     }
 
     public static void d(final String msg, final Throwable t) {
-        Log.d(TAG, msg);
+        Log.d(TAG, msg, t);
     }
 
     public static void v(final String msg, final Throwable t) {
-        Log.v(TAG, msg);
+        Log.v(TAG, msg, t);
     }
 
     public static void i(final String msg, final Throwable t) {
-        Log.i(TAG, msg);
+        Log.i(TAG, msg, t);
     }
 
     public static void e(final String msg) {
@@ -62,7 +63,6 @@ public class Logger {
     public static void logStacktrace(final String msg) {
         if (!Logger.DEBUG) {
             logToFile(msg, new Exception());
-            ;
         }
     }
 
@@ -115,6 +115,7 @@ public class Logger {
                 logToFile(sb.toString(), null);
 
             } catch (Exception e) {
+                //
             }
         }
     }
