@@ -3,11 +3,13 @@ package ch.almana.android.enklave.sender;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -142,6 +144,25 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
             imageView.setImageURI(photoUri);
             scalePhoto(imageView);
             hasImage = true;
+            try {
+//                ExifInterface exif = new ExifInterface(photoUri.getPath());
+                Cursor cursor = this.getContentResolver().query(photoUri, new String[] { android.provider.MediaStore.Images.ImageColumns.DATA }, null, null, null);
+                cursor.moveToFirst();
+                String filePath = cursor.getString(0);
+                cursor.close();
+                ExifInterface exif = new ExifInterface(filePath);
+                float[] ll = new float[2];
+                exif.getLatLong(ll);
+                String lat = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE);
+                String lon = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE);
+                if (lat != null && lon != null){
+                    enklaveLatLng = new LatLng(ll[0], ll[1]);
+                    updateMarker(enklaveLatLng);
+                }
+                Logger.w("Got lat/lon from image: "+lat+"/"+lon);
+            } catch (Exception e) {
+                Logger.w("Cannot get lat/lon from image",e);
+            }
         }
         if (savedInstanceState != null) {
             Bitmap photoBitmap = savedInstanceState.getParcelable(EXTRA_IMAGE);
@@ -407,31 +428,32 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
         mMap.setMyLocationEnabled(true);
         mMap.setOnMapClickListener(this);
         mMap.setOnMapLongClickListener(this);
-        //  mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
         setMapType();
-//        if (marker != null){
-//            mMap.addMarker(marker);
-//        }
     }
 
     private void updateLocation() {
-//        Criteria criteria = new Criteria();
-//        criteria.setCostAllowed(false);
-//        final String bestProvider = locationManager.getBestProvider(criteria, false);
-
-
-        Location location = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
-        if (location == null) {
-            locationManager.requestSingleUpdate(LocationManager.PASSIVE_PROVIDER, locationListener, getMainLooper());
-        } else {
-            final LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-            int zoom = 16;
-            if (settings.isDebugMode()) {
-                zoom = 1;
+        if (enklaveLatLng == null) {
+            Location location = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+            if (location == null) {
+                locationManager.requestSingleUpdate(LocationManager.PASSIVE_PROVIDER, locationListener, getMainLooper());
+            } else {
+                final LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                zoomToPosition(latLng);
             }
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
-//            updateMarker(latLng);
+        }else{
+            zoomToPosition(enklaveLatLng);
         }
+    }
+
+    private void zoomToPosition(LatLng latLng) {
+        if (mMap == null){
+            return;
+        }
+        int zoom = 16;
+        if (settings.isDebugMode()) {
+            zoom = 1;
+        }
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
     }
 
 
@@ -447,6 +469,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
         marker.position(latLng);
         if (mMap != null) {
             mMap.addMarker(marker);
+            zoomToPosition(latLng);
         }
         enableSendButton();
     }
