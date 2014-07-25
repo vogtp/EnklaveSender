@@ -45,6 +45,7 @@ import ch.almana.android.enklave.sender.utils.Settings;
 public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapLongClickListener, GoogleMap.OnMapClickListener {
 
     private static final int REQUEST_CODE_TAKE_PICTURE = 1;
+    private static final int REQUEST_CODE_SELECT_PHOTO = 2;
     private static final String EXTRA_IMAGE = "EXTRA_IMAGE";
     private static final String EXTRA_NAME = "EXTRA_NAME";
     private static final String EXTRA_LATLON = "EXTRA_LATLON";
@@ -61,7 +62,6 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
     private LocationManager locationManager;
     private LocationListener locationListener;
     private boolean hasImage = false;
-    private Uri photoUri;
     //    private Bitmap photoBitmap;
     private CheckLogin checkLogin;
     private Uri cameraResultUri;
@@ -128,41 +128,13 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                if (!hasImageCaptureBug()) {
-                    cameraResultUri = Uri.fromFile(getCameraFile());
-                    cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, cameraResultUri);
-                }
-                startActivityForResult(cameraIntent, REQUEST_CODE_TAKE_PICTURE);
+                startCamera();
             }
         });
         setUpMapIfNeeded();
 
         if (getIntent().hasExtra(Intent.EXTRA_STREAM)) {
-            photoUri = getIntent().getParcelableExtra(Intent.EXTRA_STREAM);
-            Logger.i("Got image from intent: " + photoUri);
-            imageView.setImageURI(photoUri);
-            scalePhoto(imageView);
-            hasImage = true;
-            try {
-//                ExifInterface exif = new ExifInterface(photoUri.getPath());
-                Cursor cursor = this.getContentResolver().query(photoUri, new String[] { android.provider.MediaStore.Images.ImageColumns.DATA }, null, null, null);
-                cursor.moveToFirst();
-                String filePath = cursor.getString(0);
-                cursor.close();
-                ExifInterface exif = new ExifInterface(filePath);
-                float[] ll = new float[2];
-                exif.getLatLong(ll);
-                String lat = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE);
-                String lon = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE);
-                if (lat != null && lon != null){
-                    enklaveLatLng = new LatLng(ll[0], ll[1]);
-                    updateMarker(enklaveLatLng);
-                }
-                Logger.w("Got lat/lon from image: "+lat+"/"+lon);
-            } catch (Exception e) {
-                Logger.w("Cannot get lat/lon from image",e);
-            }
+            loadImageUri((Uri) getIntent().getParcelableExtra(Intent.EXTRA_STREAM));
         }
         if (savedInstanceState != null) {
             Bitmap photoBitmap = savedInstanceState.getParcelable(EXTRA_IMAGE);
@@ -177,6 +149,45 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
             etName.setText(savedInstanceState.getString(EXTRA_NAME));
             hasImage = savedInstanceState.getBoolean(EXTRA_HAS_IMAGE);
             enableSendButton();
+        }
+    }
+
+    private void loadImageUri(Uri photoUri) {
+        Logger.i("Got image from intent: " + photoUri);
+        imageView.setImageURI(photoUri);
+        scalePhoto(imageView);
+        hasImage = true;
+        try {
+//                ExifInterface exif = new ExifInterface(photoUri.getPath());
+            Cursor cursor = this.getContentResolver().query(photoUri, new String[]{MediaStore.Images.ImageColumns.DATA}, null, null, null);
+            cursor.moveToFirst();
+            String filePath = cursor.getString(0);
+            cursor.close();
+            ExifInterface exif = new ExifInterface(filePath);
+            float[] ll = new float[2];
+            exif.getLatLong(ll);
+            String lat = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE);
+            String lon = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE);
+            if (lat != null && lon != null) {
+                enklaveLatLng = new LatLng(ll[0], ll[1]);
+                updateMarker(enklaveLatLng);
+            }
+            Logger.w("Got lat/lon from image: " + lat + "/" + lon);
+        } catch (Exception e) {
+            Logger.w("Cannot get lat/lon from image", e);
+        }
+    }
+
+    private void startCamera() {
+        if (hasImageCaptureBug()) {
+            Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+            photoPickerIntent.setType("image/*");
+            startActivityForResult(photoPickerIntent, REQUEST_CODE_SELECT_PHOTO);
+        } else {
+            Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            cameraResultUri = Uri.fromFile(getCameraFile());
+            cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, cameraResultUri);
+            startActivityForResult(cameraIntent, REQUEST_CODE_TAKE_PICTURE);
         }
     }
 
@@ -202,7 +213,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
             if (settings.isDebugMode()) {
                 subtitle += " (DEBUG)";
             }
-            if (getActionBar() != null){
+            if (getActionBar() != null) {
                 getActionBar().setSubtitle(subtitle);
             }
         }
@@ -213,7 +224,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
     }
 
     public boolean hasImageCaptureBug() {
-        if (settings.hasCameraIssues()){
+        if (settings.hasCameraIssues()) {
             return true;
         }
         // list of known devices that have the bug
@@ -240,13 +251,17 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_CODE_TAKE_PICTURE ) {
+        if (requestCode == REQUEST_CODE_TAKE_PICTURE) {
             if (resultCode == RESULT_OK) {
                 if (cameraResultUri != null) {
                     imageView.setImageURI(cameraResultUri);
                     scalePhoto(imageView);
                     hasImage = true;
                 } else {
+                    if (data == null){
+                        Logger.e("No intent data",new Exception());
+                        return;
+                    }
                     Bitmap photoBitmap = (Bitmap) data.getExtras().get("data");
                     if (photoBitmap != null) {
                         if (photoBitmap.getHeight() > 100 || photoBitmap.getWidth() > 100) {
@@ -263,16 +278,23 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
                         hasCameraIssues();
                     }
                 }
-            }else{
+            } else {
                 hasCameraIssues();
             }
 
             enableSendButton();
+        } else if (requestCode == REQUEST_CODE_SELECT_PHOTO) {
+            if (data == null){
+                Logger.e("No intent data",new Exception());
+                return;
+            }
+            Uri selectedImage = data.getData();
+            loadImageUri(selectedImage);
         }
     }
 
     private void hasCameraIssues() {
-        Toast.makeText(this, getString(R.string.camer_issues),Toast.LENGTH_LONG).show();
+        Toast.makeText(this, getString(R.string.camer_issues), Toast.LENGTH_LONG).show();
         settings.setHasCameraIssues(true);
     }
 
@@ -290,7 +312,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
         etName.setText(null);
         enklaveLatLng = null;
         imageView.setImageResource(R.drawable.camera1);
-        if (mMap != null){
+        if (mMap != null) {
             mMap.clear();
         }
     }
@@ -440,13 +462,13 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
                 final LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
                 zoomToPosition(latLng);
             }
-        }else{
+        } else {
             zoomToPosition(enklaveLatLng);
         }
     }
 
     private void zoomToPosition(LatLng latLng) {
-        if (mMap == null){
+        if (mMap == null) {
             return;
         }
         int zoom = 16;

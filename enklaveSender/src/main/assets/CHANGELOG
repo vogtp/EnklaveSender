@@ -6,9 +6,10 @@ V
 * known bugs
 -
 
-V
+V 1.2.0
 * features
 - Get lat/lon from image when send from gallery
+- Get pictures from gallery if the camera yields to small images
 * bug fixes
 - Zoom in on marker not current position
 * known bugs
