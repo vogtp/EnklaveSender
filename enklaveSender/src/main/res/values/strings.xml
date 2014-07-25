@@ -14,5 +14,6 @@
     <string name="title_enklave_login">Eklave Login</string>
     <string name="version">PASS revision %s</string>
     <string name="send_test_data">Send Test Data</string>
+    <string name="menu_statelite_view">Satelite view</string>
 
 </resources>

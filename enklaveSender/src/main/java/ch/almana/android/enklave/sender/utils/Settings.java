@@ -11,6 +11,7 @@ import android.preference.PreferenceManager;
 public class Settings {
 
     private static final String PREF_KEY_DEBUG = "debug_mode";
+    private static final String PREF_MAP_SATELIT = "PREF_MAP_SATELIT";
     private static Settings instance = null;
     private final Context ctx;
 
@@ -118,5 +119,13 @@ public class Settings {
 
     public boolean isDebugMode() {
         return getPreferences().getBoolean(PREF_KEY_DEBUG, enableDebugOption());
+    }
+
+    public void setMapSatelitMode(boolean mapSat) {
+        getPreferences().edit().putBoolean(PREF_MAP_SATELIT, mapSat).commit();
+    }
+
+    public boolean isMapSatelit(){
+        return getPreferences().getBoolean(PREF_MAP_SATELIT, true);
     }
 }

@@ -270,6 +270,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.website, menu);
+        getMenuInflater().inflate(R.menu.map, menu);
         final Settings settings = this.settings;
         if (settings.enableDebugOption()) {
             getMenuInflater().inflate(R.menu.debug, menu);
@@ -284,7 +285,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
         final Settings settings = this.settings;
         if (settings.enableDebugOption()) {
             menu.findItem(R.id.action_debug).setChecked(settings.isDebugMode());
-        }
+        }menu.findItem(R.id.action_map_satelite).setChecked(settings.isMapSatelit());
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -302,8 +303,18 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
             item.setChecked(debugMode);
             Settings.getInstance(this).setDebugMode(debugMode);
             showDebugInfo();
+        } else if (id == R.id.action_map_satelite){
+            boolean mapSat = !item.isChecked();
+            item.setChecked(mapSat);
+            Settings.getInstance(this).setMapSatelitMode(mapSat);
+            setMapType();
         }
+
         return super.onOptionsItemSelected(item);
+    }
+
+    private void setMapType() {
+        mMap.setMapType(settings.isMapSatelit() ? GoogleMap.MAP_TYPE_HYBRID : GoogleMap.MAP_TYPE_NORMAL);
     }
 
     /**
@@ -345,8 +356,8 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
         mMap.setMyLocationEnabled(true);
         mMap.setOnMapClickListener(this);
         mMap.setOnMapLongClickListener(this);
-        mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-
+      //  mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+        setMapType();
 //        if (marker != null){
 //            mMap.addMarker(marker);
 //        }
