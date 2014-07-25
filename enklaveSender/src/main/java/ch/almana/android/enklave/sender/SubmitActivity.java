@@ -33,6 +33,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.File;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Random;
 
 import ch.almana.android.enklave.sender.connection.EnklaveSumbitAsyncTask;
@@ -126,8 +127,10 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
             @Override
             public void onClick(View v) {
                 Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                cameraResultUri = Uri.fromFile(getCameraFile());
-                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, cameraResultUri);
+                if (!hasImageCaptureBug()) {
+                    cameraResultUri = Uri.fromFile(getCameraFile());
+                    cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, cameraResultUri);
+                }
                 startActivityForResult(cameraIntent, REQUEST_CODE_TAKE_PICTURE);
             }
         });
@@ -157,14 +160,18 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
 
 
     private File getCameraFile() {
-        String root = Environment.getExternalStorageDirectory().toString();
+        final File directory = Environment.getExternalStorageDirectory();
+        String root = directory.toString();
+        Logger.i("Camera root dir: " + directory.toString());
         File myDir = new File(root + "/enklave/");
         myDir.mkdirs();
         Random generator = new Random();
         int n = 10000;
         n = generator.nextInt(n);
         String fname = "Enklave-" + DateFormat.getDateTimeInstance().format(System.currentTimeMillis()) + ".jpg";
-        return new File(myDir, fname);
+        final File file = new File(myDir, fname);
+        Logger.i("Camera file: " + file.toString());
+        return file;
     }
 
 
@@ -183,6 +190,24 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
         new BitmapScaler().execute(iv);
     }
 
+    public boolean hasImageCaptureBug() {
+        if (settings.hasCameraIssues()){
+            return true;
+        }
+        // list of known devices that have the bug
+        ArrayList<String> devices = new ArrayList<String>();
+        devices.add("android-devphone1/dream_devphone/dream");
+        devices.add("generic/sdk/generic");
+        devices.add("vodafone/vfpioneer/sapphire");
+        devices.add("tmobile/kila/dream");
+        devices.add("verizon/voles/sholes");
+        devices.add("google_ion/google_ion/sapphire");
+
+        return devices.contains(android.os.Build.BRAND + "/" + android.os.Build.PRODUCT + "/"
+                + android.os.Build.DEVICE);
+
+    }
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -192,23 +217,40 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_CODE_TAKE_PICTURE && resultCode == RESULT_OK) {
-//            photoBitmap = (Bitmap) data.getExtras().get("data");
-            if (cameraResultUri != null) {
-//                new ImageSaveAsyncTask().execute(photoBitmap.copy(photoBitmap.getConfig(), false));
-                imageView.setImageURI(cameraResultUri);
-                scalePhoto(imageView);
-//                photoUri = null;
-                hasImage = true;
-            } else {
-                hasImage = false;
+        if (requestCode == REQUEST_CODE_TAKE_PICTURE ) {
+            if (resultCode == RESULT_OK) {
+                if (cameraResultUri != null) {
+                    imageView.setImageURI(cameraResultUri);
+                    scalePhoto(imageView);
+                    hasImage = true;
+                } else {
+                    Bitmap photoBitmap = (Bitmap) data.getExtras().get("data");
+                    if (photoBitmap != null) {
+                        if (photoBitmap.getHeight() > 100 || photoBitmap.getWidth() > 100) {
+                            imageView.setImageBitmap(photoBitmap);
+                            scalePhoto(imageView);
+                            hasImage = true;
+                        }
+                        if (photoBitmap.getHeight() < 800 || photoBitmap.getWidth() < 800) {
+                            Toast.makeText(this, getString(R.string.problem_with_camera_image_size), Toast.LENGTH_LONG).show();
+                            hasCameraIssues();
+                        }
+                    } else {
+                        hasImage = false;
+                        hasCameraIssues();
+                    }
+                }
+            }else{
+                hasCameraIssues();
             }
+
             enableSendButton();
         }
     }
 
-    public boolean hasHoloTheme() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
+    private void hasCameraIssues() {
+        Toast.makeText(this, getString(R.string.camer_issues),Toast.LENGTH_LONG).show();
+        settings.setHasCameraIssues(true);
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -269,8 +311,9 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.website, menu);
         getMenuInflater().inflate(R.menu.map, menu);
+        getMenuInflater().inflate(R.menu.website, menu);
+        getMenuInflater().inflate(R.menu.changelog, menu);
         final Settings settings = this.settings;
         if (settings.enableDebugOption()) {
             getMenuInflater().inflate(R.menu.debug, menu);
@@ -285,7 +328,8 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
         final Settings settings = this.settings;
         if (settings.enableDebugOption()) {
             menu.findItem(R.id.action_debug).setChecked(settings.isDebugMode());
-        }menu.findItem(R.id.action_map_satelite).setChecked(settings.isMapSatelit());
+        }
+        menu.findItem(R.id.action_map_satelite).setChecked(settings.isMapSatelit());
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -303,11 +347,13 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
             item.setChecked(debugMode);
             Settings.getInstance(this).setDebugMode(debugMode);
             showDebugInfo();
-        } else if (id == R.id.action_map_satelite){
+        } else if (id == R.id.action_map_satelite) {
             boolean mapSat = !item.isChecked();
             item.setChecked(mapSat);
             Settings.getInstance(this).setMapSatelitMode(mapSat);
             setMapType();
+        } else if (id == R.id.action_changelog) {
+            startActivity(new Intent(this, ChangelogActivity.class));
         }
 
         return super.onOptionsItemSelected(item);
@@ -356,7 +402,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
         mMap.setMyLocationEnabled(true);
         mMap.setOnMapClickListener(this);
         mMap.setOnMapLongClickListener(this);
-      //  mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+        //  mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
         setMapType();
 //        if (marker != null){
 //            mMap.addMarker(marker);

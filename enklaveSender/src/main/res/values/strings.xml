@@ -15,5 +15,8 @@
     <string name="version">PASS revision %s</string>
     <string name="send_test_data">Send Test Data</string>
     <string name="menu_statelite_view">Satelite view</string>
+    <string name="changelog">Changelog</string>
+    <string name="problem_with_camera_image_size">There has been a problem accessing the fullsized image of you camera!  Please consider to submit images from the gallery...</string>
+    <string name="camer_issues">Camera issues have been detected, please submit the enklave from the gallery or retake the picture</string>
 
 </resources>

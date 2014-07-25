@@ -12,6 +12,7 @@ public class Settings {
 
     private static final String PREF_KEY_DEBUG = "debug_mode";
     private static final String PREF_MAP_SATELIT = "PREF_MAP_SATELIT";
+    private static final String PREF_CAMERA_ISSUES = "PREF_CAMERA_ISSUES";
     private static Settings instance = null;
     private final Context ctx;
 
@@ -127,5 +128,12 @@ public class Settings {
 
     public boolean isMapSatelit(){
         return getPreferences().getBoolean(PREF_MAP_SATELIT, true);
+    }
+
+    public void setHasCameraIssues(boolean b) {
+        getPreferences().edit().putBoolean(PREF_CAMERA_ISSUES, b).commit();
+    }
+    public boolean hasCameraIssues(){
+        return getPreferences().getBoolean(PREF_CAMERA_ISSUES, false);
     }
 }
