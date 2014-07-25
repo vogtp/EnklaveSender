@@ -10,7 +10,7 @@ V 1.2.0
 * features
 - Get lat/lon from image when send from gallery
 - Get pictures from gallery if the camera yields to small images
-- scale images to max 800px
+- Scale images to max 800px
 - Zoom in on marker not current position
 * bug fixes
 -
