@@ -34,7 +34,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.io.File;
 import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Random;
 
 import ch.almana.android.enklave.sender.connection.EnklaveSumbitAsyncTask;
 import ch.almana.android.enklave.sender.utils.BitmapScaler;
@@ -47,6 +46,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
     private static final String EXTRA_IMAGE = "EXTRA_IMAGE";
     private static final String EXTRA_NAME = "EXTRA_NAME";
     private static final String EXTRA_LATLON = "EXTRA_LATLON";
+    private static final String EXTRA_HAS_IMAGE = "EXTRA_HAS_IMAGE";
     private final Settings settings = Settings.getInstance(SubmitActivity.this);
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private ImageView imageView;
@@ -154,6 +154,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
                 updateMarker(enklaveLatLng);
             }
             etName.setText(savedInstanceState.getString(EXTRA_NAME));
+            hasImage = savedInstanceState.getBoolean(EXTRA_HAS_IMAGE);
             enableSendButton();
         }
     }
@@ -164,10 +165,8 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
         String root = directory.toString();
         Logger.i("Camera root dir: " + directory.toString());
         File myDir = new File(root + "/enklave/");
+        //noinspection ResultOfMethodCallIgnored
         myDir.mkdirs();
-        Random generator = new Random();
-        int n = 10000;
-        n = generator.nextInt(n);
         String fname = "Enklave-" + DateFormat.getDateTimeInstance().format(System.currentTimeMillis()) + ".jpg";
         final File file = new File(myDir, fname);
         Logger.i("Camera file: " + file.toString());
@@ -182,7 +181,9 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
             if (settings.isDebugMode()) {
                 subtitle += " (DEBUG)";
             }
-            getActionBar().setSubtitle(subtitle);
+            if (getActionBar() != null){
+                getActionBar().setSubtitle(subtitle);
+            }
         }
     }
 
@@ -214,6 +215,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
         outState.putParcelable(EXTRA_IMAGE, ((BitmapDrawable) imageView.getDrawable()).getBitmap());
         outState.putString(EXTRA_NAME, etName.getText().toString());
         outState.putParcelable(EXTRA_LATLON, enklaveLatLng);
+        outState.putBoolean(EXTRA_HAS_IMAGE, hasImage);
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
