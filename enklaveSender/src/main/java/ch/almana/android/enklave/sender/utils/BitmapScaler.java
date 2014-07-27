@@ -11,7 +11,7 @@ import android.widget.ImageView;
  */
 public class BitmapScaler extends AsyncTask<ImageView, Void, Bitmap> {
 
-    private static final int MAX_IMAGE_SIZE = 800;
+    public static final int MAX_IMAGE_SIZE = 800;
 
     private ImageView imageView;
     private boolean hasNewSize = Logger.DEBUG;

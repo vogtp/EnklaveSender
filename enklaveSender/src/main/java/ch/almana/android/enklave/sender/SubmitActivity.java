@@ -269,7 +269,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
                             scalePhoto(imageView);
                             hasImage = true;
                         }
-                        if (photoBitmap.getHeight() < 800 || photoBitmap.getWidth() < 800) {
+                        if (photoBitmap.getHeight() < BitmapScaler.MAX_IMAGE_SIZE-1 || photoBitmap.getWidth() < BitmapScaler.MAX_IMAGE_SIZE-1) {
                             Toast.makeText(this, getString(R.string.problem_with_camera_image_size), Toast.LENGTH_LONG).show();
                             hasCameraIssues();
                         }

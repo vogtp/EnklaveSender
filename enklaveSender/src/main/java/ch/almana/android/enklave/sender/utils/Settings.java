@@ -12,7 +12,7 @@ public class Settings {
 
     private static final String PREF_KEY_DEBUG = "debug_mode";
     private static final String PREF_MAP_SATELIT = "PREF_MAP_SATELIT";
-    private static final String PREF_CAMERA_ISSUES = "PREF_CAMERA_ISSUES";
+    private static final String PREF_CAMERA_ISSUES = "has_camera_issues";
     private static Settings instance = null;
     private final Context ctx;
 
@@ -31,6 +31,9 @@ public class Settings {
     public static Settings getInstance(final Context ctx) {
         if (instance == null) {
             instance = new Settings(ctx);
+            if (instance.getPreferences().contains("PREF_CAMERA_ISSUES")){
+                instance.getPreferences().edit().remove("PREF_CAMERA_ISSUES").commit();
+            }
         }
         return instance;
     }

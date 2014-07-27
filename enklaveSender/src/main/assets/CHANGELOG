@@ -11,6 +11,7 @@ V 1.2.1
 -
 * bug fixes
 - fix force close
+- fix wrong size detection
 * known bugs
 -
 
