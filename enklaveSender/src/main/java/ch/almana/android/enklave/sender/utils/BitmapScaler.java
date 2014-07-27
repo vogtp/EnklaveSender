@@ -19,13 +19,17 @@ public class BitmapScaler extends AsyncTask<ImageView, Void, Bitmap> {
     @Override
     protected Bitmap doInBackground(ImageView... params) {
         imageView = params[0];
-        return scaleImage(((BitmapDrawable) imageView.getDrawable()).getBitmap());
+        final BitmapDrawable drawable = (BitmapDrawable) imageView.getDrawable();
+        if (drawable == null){
+            return null;
+        }
+        return scaleImage(drawable.getBitmap());
     }
 
     @Override
     protected void onPostExecute(Bitmap bitmap) {
         super.onPostExecute(bitmap);
-        if (hasNewSize) {
+        if (hasNewSize && bitmap != null) {
             imageView.setImageBitmap(bitmap);
         }
     }

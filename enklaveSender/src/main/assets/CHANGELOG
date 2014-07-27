@@ -6,6 +6,14 @@ V
 * known bugs
 -
 
+V 1.2.1
+* features
+-
+* bug fixes
+- fix force close
+* known bugs
+-
+
 V 1.2.0
 * features
 - Get lat/lon from image when send from gallery
