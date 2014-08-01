@@ -5,14 +5,17 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
+import android.os.Environment;
 import android.preference.PreferenceManager;
+
+import java.io.File;
 
 
 public class Settings {
 
     private static final String PREF_KEY_DEBUG = "debug_mode";
     private static final String PREF_MAP_SATELIT = "PREF_MAP_SATELIT";
-    private static final String PREF_CAMERA_ISSUES = "has_camera_issues";
+    private static final String PREF_CAMERA_ISSUES = "pref_has_camera_issues";
     private static Settings instance = null;
     private final Context ctx;
 
@@ -20,6 +23,8 @@ public class Settings {
     private Settings(final Context context) {
         super();
         this.ctx = context.getApplicationContext();
+        removeKey("PREF_CAMERA_ISSUES");
+        removeKey("has_camera_issues");
     }
 
     /**
@@ -31,11 +36,14 @@ public class Settings {
     public static Settings getInstance(final Context ctx) {
         if (instance == null) {
             instance = new Settings(ctx);
-            if (instance.getPreferences().contains("PREF_CAMERA_ISSUES")){
-                instance.getPreferences().edit().remove("PREF_CAMERA_ISSUES").commit();
-            }
         }
         return instance;
+    }
+
+    private void removeKey(String prefKey) {
+        if (getPreferences().contains(prefKey)){
+            getPreferences().edit().remove(prefKey).commit();
+        }
     }
 
     public static Settings getInstance() {
