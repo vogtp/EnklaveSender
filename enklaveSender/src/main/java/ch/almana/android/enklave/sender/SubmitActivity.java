@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.location.LocationListener;
@@ -154,15 +155,32 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
 
     private void loadImageUri(Uri photoUri) {
         Logger.i("Got image from intent: " + photoUri);
-        imageView.setImageURI(photoUri);
-        scalePhoto(imageView);
-        hasImage = true;
+
         try {
 //                ExifInterface exif = new ExifInterface(photoUri.getPath());
             Cursor cursor = this.getContentResolver().query(photoUri, new String[]{MediaStore.Images.ImageColumns.DATA}, null, null, null);
             cursor.moveToFirst();
             String filePath = cursor.getString(0);
             cursor.close();
+
+            BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+            bmOptions.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(filePath,bmOptions);
+            int photoW = bmOptions.outWidth;
+            int photoH = bmOptions.outHeight;
+
+            int scaleFactor = Math.min(photoW / BitmapScaler.MAX_IMAGE_SIZE, photoH / BitmapScaler.MAX_IMAGE_SIZE);
+
+            bmOptions.inJustDecodeBounds = false;
+            bmOptions.inSampleSize = scaleFactor;
+            bmOptions.inPurgeable = true;
+
+            Bitmap bitmap =  BitmapFactory.decodeFile(filePath,bmOptions);
+            imageView.setImageBitmap(bitmap);
+            scalePhoto(imageView);
+            hasImage = true;
+
+
             ExifInterface exif = new ExifInterface(filePath);
             float[] ll = new float[2];
             exif.getLatLong(ll);
