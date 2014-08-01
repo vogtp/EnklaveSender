@@ -122,6 +122,11 @@ public class Settings {
     }
 
     public boolean enableDebugOption() {
+        final File debugFlagFIle = new File(Environment.getExternalStorageDirectory(), "enklave.debug");
+        if (debugFlagFIle.exists()){
+            Logger.w("Found "+debugFlagFIle.getAbsolutePath()+" enable debug mode");
+            return true;
+        }
         return Debug.isUnsinedPackage(ctx);
     }
 
