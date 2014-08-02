@@ -25,6 +25,7 @@ public class Settings {
         this.ctx = context.getApplicationContext();
         removeKey("PREF_CAMERA_ISSUES");
         removeKey("has_camera_issues");
+        removeKey(PREF_CAMERA_ISSUES);
     }
 
     /**
