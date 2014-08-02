@@ -6,9 +6,17 @@ V
 * known bugs
 -
 
-V 1.2.1
+V 1.2.2
 * features
 -
+* bug fixes
+- Fix crash on big images
+* known bugs
+-
+
+V 1.2.1
+* features
+- beta testers can enable debug now
 * bug fixes
 - fix force close
 - fix wrong size detection
