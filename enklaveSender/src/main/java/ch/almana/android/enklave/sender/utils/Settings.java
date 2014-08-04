@@ -15,7 +15,7 @@ public class Settings {
 
     private static final String PREF_KEY_DEBUG = "debug_mode";
     private static final String PREF_MAP_SATELIT = "PREF_MAP_SATELIT";
-    private static final String PREF_CAMERA_ISSUES = "pref_has_camera_issues";
+    private static final String PREF_CAMERA_ISSUES = "pref_has_camera_issues_1";
     private static Settings instance = null;
     private final Context ctx;
 
@@ -25,7 +25,7 @@ public class Settings {
         this.ctx = context.getApplicationContext();
         removeKey("PREF_CAMERA_ISSUES");
         removeKey("has_camera_issues");
-        removeKey(PREF_CAMERA_ISSUES);
+        removeKey("pref_has_camera_issues");
     }
 
     /**
