@@ -273,8 +273,8 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
             if (resultCode == RESULT_OK) {
                 if (cameraResultUri != null) {
                     imageView.setImageURI(cameraResultUri);
-                    scalePhoto(imageView);
                     hasImage = true;
+                    scalePhoto(imageView);
                 } else {
                     if (data == null){
                         Logger.e("No intent data",new Exception());
@@ -296,6 +296,8 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
                         hasCameraIssues();
                     }
                 }
+            } else if (resultCode == RESULT_CANCELED){
+                Logger.i("Taking picture canceled..");
             } else {
                 hasCameraIssues();
             }
