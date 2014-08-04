@@ -1,6 +1,7 @@
 package ch.almana.android.enklave.sender;
 
 import android.annotation.TargetApi;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -268,12 +269,20 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
         outState.putBoolean(EXTRA_HAS_IMAGE, hasImage);
     }
 
+    private void addImageGallery( Uri file ) {
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.Images.Media.DATA, file.getPath());
+        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg"); // setar isso
+        getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+    }
+
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CODE_TAKE_PICTURE) {
             if (resultCode == RESULT_OK) {
                 if (cameraResultUri != null) {
                     imageView.setImageURI(cameraResultUri);
                     hasImage = true;
+                    addImageGallery(cameraResultUri);
                     scalePhoto(imageView);
                 } else {
                     if (data == null){
@@ -284,8 +293,8 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
                     if (photoBitmap != null) {
                         if (photoBitmap.getHeight() > 100 || photoBitmap.getWidth() > 100) {
                             imageView.setImageBitmap(photoBitmap);
-                            scalePhoto(imageView);
                             hasImage = true;
+                            scalePhoto(imageView);
                         }
                         if (photoBitmap.getHeight() < BitmapScaler.MAX_IMAGE_SIZE-1 || photoBitmap.getWidth() < BitmapScaler.MAX_IMAGE_SIZE-1) {
                             Toast.makeText(this, getString(R.string.problem_with_camera_image_size), Toast.LENGTH_LONG).show();
