@@ -166,7 +166,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
 
             BitmapFactory.Options bmOptions = new BitmapFactory.Options();
             bmOptions.inJustDecodeBounds = true;
-            BitmapFactory.decodeFile(filePath,bmOptions);
+            BitmapFactory.decodeFile(filePath, bmOptions);
             int photoW = bmOptions.outWidth;
             int photoH = bmOptions.outHeight;
 
@@ -176,7 +176,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
             bmOptions.inSampleSize = scaleFactor;
             bmOptions.inPurgeable = true;
 
-            Bitmap bitmap =  BitmapFactory.decodeFile(filePath,bmOptions);
+            Bitmap bitmap = BitmapFactory.decodeFile(filePath, bmOptions);
             imageView.setImageBitmap(bitmap);
             scalePhoto(imageView);
             hasImage = true;
@@ -269,7 +269,7 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
         outState.putBoolean(EXTRA_HAS_IMAGE, hasImage);
     }
 
-    private void addImageGallery( Uri file ) {
+    private void addImageGallery(Uri file) {
         ContentValues values = new ContentValues();
         values.put(MediaStore.Images.Media.DATA, file.getPath());
         values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg"); // setar isso
@@ -285,27 +285,29 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
                     addImageGallery(cameraResultUri);
                     scalePhoto(imageView);
                 } else {
-                    if (data == null){
-                        Logger.e("No intent data",new Exception());
+                    if (data == null) {
+                        Logger.e("No intent data", new Exception());
                         return;
                     }
-                    Bitmap photoBitmap = (Bitmap) data.getExtras().get("data");
-                    if (photoBitmap != null) {
-                        if (photoBitmap.getHeight() > 100 || photoBitmap.getWidth() > 100) {
-                            imageView.setImageBitmap(photoBitmap);
-                            hasImage = true;
-                            scalePhoto(imageView);
-                        }
-                        if (photoBitmap.getHeight() < BitmapScaler.MAX_IMAGE_SIZE-1 || photoBitmap.getWidth() < BitmapScaler.MAX_IMAGE_SIZE-1) {
-                            Toast.makeText(this, getString(R.string.problem_with_camera_image_size), Toast.LENGTH_LONG).show();
+                    if (data.getExtras() != null) {
+                        Bitmap photoBitmap = (Bitmap) data.getExtras().get("data");
+                        if (photoBitmap != null) {
+                            if (photoBitmap.getHeight() > 100 || photoBitmap.getWidth() > 100) {
+                                imageView.setImageBitmap(photoBitmap);
+                                hasImage = true;
+                                scalePhoto(imageView);
+                            }
+                            if (photoBitmap.getHeight() < BitmapScaler.MAX_IMAGE_SIZE - 1 || photoBitmap.getWidth() < BitmapScaler.MAX_IMAGE_SIZE - 1) {
+                                Toast.makeText(this, getString(R.string.problem_with_camera_image_size), Toast.LENGTH_LONG).show();
+                                hasCameraIssues();
+                            }
+                        } else {
+                            hasImage = false;
                             hasCameraIssues();
                         }
-                    } else {
-                        hasImage = false;
-                        hasCameraIssues();
                     }
                 }
-            } else if (resultCode == RESULT_CANCELED){
+            } else if (resultCode == RESULT_CANCELED) {
                 Logger.i("Taking picture canceled..");
             } else {
                 hasCameraIssues();
@@ -313,8 +315,8 @@ public class SubmitActivity extends FragmentActivity implements GoogleMap.OnMapL
 
             enableSendButton();
         } else if (requestCode == REQUEST_CODE_SELECT_PHOTO) {
-            if (data == null){
-                Logger.e("No intent data",new Exception());
+            if (data == null) {
+                Logger.e("No intent data", new Exception());
                 return;
             }
             Uri selectedImage = data.getData();
